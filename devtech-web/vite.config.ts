@@ -13,8 +13,20 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom']
+        manualChunks(id: string) {
+          // Agrupar dependencias de node_modules en un solo chunk
+          if (id.includes('node_modules')) {
+            // Agrupar React y React Router en un solo chunk
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react-router-dom')
+            ) {
+              return 'vendor'
+            }
+            // Otros módulos de node_modules
+            return 'vendor'
+          }
         }
       }
     }
