@@ -10,6 +10,101 @@ const EMAILJS_CONFIG = {
   TEMPLATE_ID: 'template_kd0vifi',
 };
 
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface CustomSelectProps {
+  label: string;
+  placeholder: string;
+  value: string;
+  options: SelectOption[];
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}
+
+/**
+ * Dropdown personalizado (reemplaza el <select> nativo del navegador).
+ * Mismo look & feel y misma animación de apertura/cierre que el usado
+ * en la sección de precios: panel oscuro con blur, opciones centradas
+ * y check en la opción activa.
+ */
+const CustomSelect = ({ label, placeholder, value, options, onChange, disabled }: CustomSelectProps) => {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selected = options.find((o) => o.value === value);
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <label className="block text-blue-200/60 text-sm mb-1.5">{label}</label>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className={`w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl bg-white/5 border text-left transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+          open ? 'border-blue-400/50' : 'border-white/10 hover:border-white/20'
+        }`}
+      >
+        <span className={`text-sm truncate ${selected ? 'text-white' : 'text-blue-200/30'}`}>
+          {selected ? selected.label : placeholder}
+        </span>
+        <svg
+          className={`flex-shrink-0 w-4 h-4 text-blue-300/60 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <div
+        role="listbox"
+        className={`absolute left-0 right-0 z-30 mt-2 origin-top rounded-xl border border-white/10 bg-[#12121f] backdrop-blur-xl shadow-xl shadow-black/40 overflow-hidden py-1.5 transition-all duration-200 ${
+          open ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'
+        }`}
+      >
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            role="option"
+            aria-selected={value === opt.value}
+            onClick={() => {
+              onChange(opt.value);
+              setOpen(false);
+            }}
+            className={`relative w-full flex items-center justify-center px-8 py-2.5 text-sm transition-colors duration-150 ${
+              value === opt.value
+                ? 'bg-blue-500/10 text-blue-300 font-medium'
+                : 'text-blue-100/75 hover:bg-white/[0.05] hover:text-white'
+            }`}
+          >
+            <span className="text-center">{opt.label}</span>
+            {value === opt.value && (
+              <svg className="absolute right-3 w-3.5 h-3.5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const Contact = () => {
   useEffect(() => {
     AOS.init({
@@ -19,30 +114,65 @@ const Contact = () => {
     });
   }, []);
 
+  // Detectar el plan desde la URL
+  const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: string } | null>(null);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const planName = params.get('plan');
+    const planPrice = params.get('price');
+    if (planName && planPrice) {
+      setSelectedPlan({ name: planName, price: planPrice });
+    }
+  }, []);
+
   // Estado del formulario
   const [formData, setFormData] = useState({
     user_name: '',
     user_email: '',
     user_phone: '',
     user_company: '',
+    business_type: '',
     service: '',
     message: '',
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     success: boolean;
     message: string;
   } | null>(null);
-
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Manejar cambios en los inputs
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // Descripción de cada plan
+  const planDescriptions: Record<string, string> = {
+    'Landing Page': '✅ Página de una sola vista perfecta para campañas\n✅ Diseño profesional y moderno\n✅ Adaptable a todos los dispositivos\n✅ Botón directo a WhatsApp\n✅ Formulario de contacto\n✅ SEO básico\n✅ Entrega en 5 días\n✅ 1 ronda de cambios',
+    'Página Web para Negocios': '✅ Hasta 6 páginas o secciones\n✅ Diseño totalmente personalizado\n✅ Dominio .com por 1 año\n✅ Hosting por 1 año\n✅ Correos empresariales\n✅ Google Maps integrado\n✅ SEO básico\n✅ Capacitación básica',
+    'Página Web Profesional': '✅ Hasta 15 páginas o secciones\n✅ Blog administrable\n✅ Portafolio de proyectos\n✅ SEO avanzado\n✅ Google Analytics y Search Console\n✅ WhatsApp flotante\n✅ Panel básico CMS\n✅ 30 días de soporte',
+    'Página Web Empresarial': '✅ Páginas o secciones ilimitadas\n✅ Panel administrativo CMS completo\n✅ Catálogo de productos\n✅ Blog y noticias administrables\n✅ Sistema de cotizaciones\n✅ Agenda de citas\n✅ Integración con CRM\n✅ 60 días de soporte',
+  };
+
+  // Información sobre el plan para mostrar en el formulario
+  const getPlanInfo = () => {
+    if (!selectedPlan) return null;
+    const description = planDescriptions[selectedPlan.name] || 'Consulta nuestro paquete para más detalles.';
+    return {
+      name: selectedPlan.name,
+      price: selectedPlan.price,
+      description: description,
+    };
+  };
+  const planInfo = getPlanInfo();
+
+  // Manejar cambios en los inputs de texto
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  // Manejar cambios en los CustomSelect
+  const handleSelectChange = (field: 'business_type' | 'service') => (value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   // Enviar formulario
@@ -50,12 +180,8 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus(null);
-
     try {
-      // Inicializar EmailJS
       emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
-
-      // Enviar el email
       const result = await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
         EMAILJS_CONFIG.TEMPLATE_ID,
@@ -64,26 +190,49 @@ const Contact = () => {
           from_email: formData.user_email,
           user_phone: formData.user_phone,
           user_company: formData.user_company,
+          business_type: formData.business_type,
           service: formData.service,
-          message: formData.message,
+          message: `
+📋 **Datos del cliente**
+Nombre: ${formData.user_name}
+Correo: ${formData.user_email}
+Teléfono: ${formData.user_phone}
+Empresa: ${formData.user_company}
+Tipo de negocio: ${formData.business_type}
+
+📌 **Servicio seleccionado:** ${formData.service}
+${planInfo ? `
+
+💼 **Plan seleccionado:** ${planInfo.name}
+💰 **Precio:** $${planInfo.price} MXN
+📝 **Descripción del plan:**
+${planInfo.description}
+` : ''}
+
+📝 **Mensaje del cliente:**
+${formData.message}
+          `.trim(),
         }
       );
-
       if (result.text === 'OK') {
         setSubmitStatus({
           success: true,
-          message: '¡Mensaje enviado con éxito! Te contactaremos pronto.',
+          message: `¡Mensaje enviado con éxito! ${
+            planInfo ? `Te contactaremos pronto para hablar sobre el plan "${planInfo.name}".` : 'Te contactaremos pronto.'
+          }`,
         });
-        // Resetear formulario
         setFormData({
           user_name: '',
           user_email: '',
           user_phone: '',
           user_company: '',
+          business_type: '',
           service: '',
           message: '',
         });
         formRef.current?.reset();
+        setSelectedPlan(null);
+        window.history.replaceState({}, '', window.location.pathname);
       }
     } catch (error) {
       console.error('Error al enviar:', error);
@@ -154,16 +303,22 @@ const Contact = () => {
     'Asesoría IT'
   ];
 
+  const businessTypes = [
+    'Restaurante',
+    'Tienda / E-commerce',
+    'Clínica / Consultorio',
+    'Otro'
+  ];
+
   return (
     <section className="relative py-16 md:py-24 bg-[#0a0a14] overflow-hidden" id="contacto">
       {/* Glow de fondo */}
       <div className="absolute inset-0 flex items-center justify-center -z-10">
         <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
       </div>
-
-      <div className="container-custom relative z-10">
+      <div className="container-custom relative z-10 max-w-6xl mx-auto">
         {/* Encabezado */}
-        <div 
+        <div
           className="text-center mb-12 md:mb-16"
           data-aos="fade-up"
           data-aos-duration="600"
@@ -174,19 +329,62 @@ const Contact = () => {
               Contacto
             </span>
           </div>
-          
+
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
             Hablemos de tu <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">proyecto</span>
           </h2>
           <p className="text-blue-200/60 text-base md:text-lg max-w-2xl mx-auto">
-            Cuéntanos sobre tu idea y te ayudaremos a hacerla realidad.
+            {planInfo
+              ? `Estás interesado en el plan "${planInfo.name}". Cuéntanos más sobre tu proyecto.`
+              : 'Cuéntanos sobre tu idea y te ayudaremos a hacerla realidad.'
+            }
           </p>
           <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mt-4 rounded-full"></div>
         </div>
 
+        {/* Plan seleccionado */}
+        {planInfo && (
+          <div
+            className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-400/20"
+            data-aos="fade-up"
+            data-aos-duration="600"
+          >
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-bold text-white">
+                  📌 Plan seleccionado: <span className="text-blue-300">{planInfo.name}</span>
+                </h3>
+                <p className="text-blue-200/60 text-sm mt-1">
+                  Precio: <span className="text-white font-semibold">${planInfo.price} MXN</span>
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <span className="px-3 py-1 text-xs rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/20">
+                  Plan elegido
+                </span>
+                <button
+                  onClick={() => {
+                    setSelectedPlan(null);
+                    window.history.replaceState({}, '', window.location.pathname);
+                  }}
+                  className="px-3 py-1 text-xs rounded-full bg-white/5 text-blue-200/50 hover:text-white hover:bg-white/10 border border-white/10 transition-all duration-300"
+                >
+                  Cambiar plan
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/5">
+              <p className="text-blue-200/60 text-sm whitespace-pre-wrap">
+                {planInfo.description}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
-          {/* Columna Izquierda - Información de contacto (2/5) */}
-          <div 
+          {/* Columna Izquierda - Información de contacto */}
+          <div
             className="lg:col-span-2 space-y-4"
             data-aos="fade-right"
             data-aos-duration="600"
@@ -194,7 +392,6 @@ const Contact = () => {
             <h3 className="text-xl font-bold text-white mb-6">
               Información de contacto
             </h3>
-
             {contactInfo.map((info, index) => (
               <div
                 key={index}
@@ -218,8 +415,8 @@ const Contact = () => {
             ))}
           </div>
 
-          {/* Columna Derecha - Formulario (3/5) */}
-          <div 
+          {/* Columna Derecha - Formulario */}
+          <div
             className="lg:col-span-3"
             data-aos="fade-left"
             data-aos-duration="600"
@@ -229,11 +426,10 @@ const Contact = () => {
                 Envíanos un mensaje
               </h3>
 
-              {/* Mensaje de estado */}
               {submitStatus && (
                 <div className={`mb-4 p-4 rounded-xl ${
-                  submitStatus.success 
-                    ? 'bg-green-500/20 border border-green-500/30 text-green-300' 
+                  submitStatus.success
+                    ? 'bg-green-500/20 border border-green-500/30 text-green-300'
                     : 'bg-red-500/20 border border-red-500/30 text-red-300'
                 }`}>
                   {submitStatus.message}
@@ -253,7 +449,8 @@ const Contact = () => {
                       onChange={handleChange}
                       placeholder="Tu nombre"
                       required
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300"
+                      disabled={isSubmitting}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 disabled:opacity-50"
                     />
                   </div>
                   <div>
@@ -267,7 +464,8 @@ const Contact = () => {
                       onChange={handleChange}
                       placeholder="tu@email.com"
                       required
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300"
+                      disabled={isSubmitting}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -283,7 +481,8 @@ const Contact = () => {
                       value={formData.user_phone}
                       onChange={handleChange}
                       placeholder="961 123 4567"
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300"
+                      disabled={isSubmitting}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 disabled:opacity-50"
                     />
                   </div>
                   <div>
@@ -296,28 +495,29 @@ const Contact = () => {
                       value={formData.user_company}
                       onChange={handleChange}
                       placeholder="Nombre de tu empresa"
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300"
+                      disabled={isSubmitting}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 disabled:opacity-50"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-blue-200/60 text-sm mb-1.5">
-                    Servicio de interés
-                  </label>
-                  <select
-                    name="service"
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <CustomSelect
+                    label="Tipo de negocio"
+                    placeholder="¿A qué se dedica tu negocio?"
+                    value={formData.business_type}
+                    onChange={handleSelectChange('business_type')}
+                    disabled={isSubmitting}
+                    options={businessTypes.map((type) => ({ value: type, label: type }))}
+                  />
+                  <CustomSelect
+                    label="Servicio de interés"
+                    placeholder="Selecciona un servicio"
                     value={formData.service}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-400/50 focus:outline-none transition-colors duration-300 appearance-none"
-                  >
-                    <option value="" className="bg-[#0a0a14]">Selecciona un servicio</option>
-                    {services.map((service, index) => (
-                      <option key={index} value={service} className="bg-[#0a0a14]">
-                        {service}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={handleSelectChange('service')}
+                    disabled={isSubmitting}
+                    options={services.map((service) => ({ value: service, label: service }))}
+                  />
                 </div>
 
                 <div>
@@ -329,16 +529,20 @@ const Contact = () => {
                     value={formData.message}
                     onChange={handleChange}
                     rows={4}
-                    placeholder="Describe tu proyecto, ideas o necesidades..."
+                    placeholder={planInfo
+                      ? `Me interesa el plan "${planInfo.name}" y me gustaría saber más sobre...`
+                      : 'Describe tu proyecto, ideas o necesidades...'
+                    }
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 resize-none"
+                    disabled={isSubmitting}
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 resize-none disabled:opacity-50"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full px-8 py-4 text-white font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02] transform flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-8 py-4 text-white font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02] transform flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {isSubmitting ? (
                     <>

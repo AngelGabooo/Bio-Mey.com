@@ -363,20 +363,26 @@ const ServicioWebPricing = () => {
               </ul>
 
               {/* Botón */}
-              <a
-                href="#contacto"
-                className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-md font-medium transition-all duration-300 mt-auto text-sm
-                  ${
-                    plan.popular
-                      ? 'bg-[#D4A657] text-[#0B0E14] hover:bg-[#e0b874]'
-                      : 'bg-transparent border border-white/20 text-[#EDEFF3] hover:border-[#D4A657]/50 hover:text-[#D4A657]'
-                  }`}
-              >
-                Elegir plan
-                <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </a>
+             {/* Botón - WhatsApp con mensaje personalizado */}
+<button
+  onClick={() => {
+    const phoneNumber = '528144384806'; // Número de WhatsApp (formato: código país + número)
+    const message = `Hola, estoy interesado en el plan "${plan.name}" ($${plan.price} MXN) para mi proyecto web. Me gustaría recibir más información.`;
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+  }}
+  className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-md font-medium transition-all duration-300 mt-auto text-sm
+    ${
+      plan.popular
+        ? 'bg-[#D4A657] text-[#0B0E14] hover:bg-[#e0b874]'
+        : 'bg-transparent border border-white/20 text-[#EDEFF3] hover:border-[#D4A657]/50 hover:text-[#D4A657]'
+    }`}
+>
+  Elegir plan
+  <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+  </svg>
+</button>
             </Reveal>
           ))}
         </div>

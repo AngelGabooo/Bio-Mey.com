@@ -141,7 +141,7 @@ const Hero = () => {
                   alt="Plataforma DevTech en laptop y móvil"
                   className="w-full max-w-none h-auto drop-shadow-2xl select-none pointer-events-none"
                 />
-              </div>
+              </div>  
             </div>
           </div>
         </div>

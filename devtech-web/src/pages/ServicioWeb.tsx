@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -10,6 +12,15 @@ import ServicioWebTechnologies from '../components/servicio-web/ServicioWebTechn
 import ServicioWebFAQ from '../components/servicio-web/ServicioWebFAQ';
 
 const ServicioWeb = () => {
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant',
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0a0a14] text-white overflow-x-hidden">
       <Navbar />

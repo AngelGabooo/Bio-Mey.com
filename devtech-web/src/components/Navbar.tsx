@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { navLinks } from '../data';
+import { Link } from 'react-router-dom';
+import { navLinks, serviceLinks } from '../data';
 
 /* ---------- Oculta al bajar, aparece al subir ---------- */
 function useScrollVisibility() {
@@ -18,7 +19,6 @@ function useScrollVisibility() {
 
       setScrolled(y > 20);
 
-      // Cerca del top: siempre visible. Si no, ocultar al bajar, mostrar al subir.
       if (y < 80) {
         setVisible(true);
       } else if (delta > 4) {
@@ -45,6 +45,8 @@ function useScrollVisibility() {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { visible, scrolled } = useScrollVisibility();
 
   useEffect(() => {
@@ -56,7 +58,17 @@ const Navbar = () => {
     return () => document.head.removeChild(link);
   }, []);
 
-  // El menú móvil abierto nunca debe ocultarse
+  // Cerrar dropdown al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const isVisible = visible || isOpen;
 
   return (
@@ -75,7 +87,7 @@ const Navbar = () => {
         <div className="px-4 sm:px-5 lg:px-6">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <a href="#" className="flex items-center gap-2.5 flex-shrink-0">
+            <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
               <span
                 className="w-9 h-9 rounded-lg border border-blue-400/40 bg-transparent flex items-center justify-center text-transparent bg-gradient-to-br from-blue-400 to-purple-400 bg-clip-text text-lg font-bold"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
@@ -97,27 +109,78 @@ const Navbar = () => {
                   Agencia digital
                 </span>
               </div>
-            </a>
+            </Link>
 
             {/* Menú Desktop */}
             <div className="hidden lg:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="text-sm font-medium text-blue-100/80 hover:text-white transition-colors duration-200 relative group"
-                >
-                  {link.label}
-                  <span className="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 group-hover:w-full"></span>
-                </a>
-              ))}
+              {navLinks.map((link) => {
+                // Si es el enlace de "Servicios", mostramos dropdown
+                if (link.label === 'Servicios') {
+                  return (
+                    <div key={link.label} ref={dropdownRef} className="relative">
+                      <button
+                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                        className="text-sm font-medium text-blue-100/80 hover:text-white transition-colors duration-200 relative group flex items-center gap-1"
+                      >
+                        Servicios
+                        <svg
+                          className={`w-4 h-4 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                        <span className="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 group-hover:w-full"></span>
+                      </button>
+
+                      {/* Dropdown de servicios */}
+                      <div
+                        className={`absolute left-0 mt-2 w-56 rounded-xl border border-white/10 bg-[#0a0a14]/95 backdrop-blur-xl shadow-xl shadow-black/40 overflow-hidden transition-all duration-200 origin-top ${
+                          dropdownOpen
+                            ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                            : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'
+                        }`}
+                      >
+                        <div className="py-2">
+                          {serviceLinks.map((service) => (
+                            <Link
+                              key={service.label}
+                              to={service.href}
+                              onClick={() => setDropdownOpen(false)}
+                              className="block px-4 py-2.5 text-sm text-blue-100/80 hover:text-white hover:bg-white/5 transition-colors duration-200"
+                            >
+                              {service.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Los demás enlaces
+                return (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    className="text-sm font-medium text-blue-100/80 hover:text-white transition-colors duration-200 relative group"
+                  >
+                    {link.label}
+                    <span className="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 group-hover:w-full"></span>
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Botón de acción - Desktop */}
             <div className="hidden lg:flex items-center">
-              <button className="px-5 py-2 text-white text-sm font-semibold rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-md shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-105 transform">
+              <Link
+                to="#contacto"
+                className="px-5 py-2 text-white text-sm font-semibold rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-md shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-105 transform"
+              >
                 Solicitar cotización
-              </button>
+              </Link>
             </div>
 
             {/* Botón menú móvil */}
@@ -141,23 +204,50 @@ const Navbar = () => {
       {/* Menú Móvil: panel flotante independiente debajo del navbar */}
       <div
         className={`lg:hidden max-w-5xl mx-auto transition-all duration-300 ease-out origin-top ${
-          isOpen ? 'max-h-[26rem] opacity-100 scale-y-100 mt-2' : 'max-h-0 opacity-0 scale-y-95 mt-0 pointer-events-none'
+          isOpen ? 'max-h-[32rem] opacity-100 scale-y-100 mt-2' : 'max-h-0 opacity-0 scale-y-95 mt-0 pointer-events-none'
         } overflow-hidden`}
       >
         <div className="rounded-2xl border border-white/10 bg-[#0a0a14]/90 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-3">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="block px-4 py-3 text-blue-100 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
-              onClick={() => setIsOpen(false)}
-            >
-              {link.label}
-            </a>
-          ))}
-          <button className="w-full mt-2 px-6 py-3 text-white text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-colors shadow-lg shadow-blue-600/30">
+          {navLinks.map((link) => {
+            // Para "Servicios" en móvil, mostramos los sub-enlaces directamente
+            if (link.label === 'Servicios') {
+              return (
+                <div key={link.label}>
+                  <div className="px-4 py-2 text-blue-300/70 text-sm font-medium uppercase tracking-wider">
+                    Servicios
+                  </div>
+                  {serviceLinks.map((service) => (
+                    <Link
+                      key={service.label}
+                      to={service.href}
+                      className="block pl-8 px-4 py-2.5 text-blue-100 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {service.label}
+                    </Link>
+                  ))}
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={link.label}
+                to={link.href}
+                className="block px-4 py-3 text-blue-100 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
+                onClick={() => setIsOpen(false)}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+          <Link
+            to="#contacto"
+            className="block w-full mt-2 px-6 py-3 text-center text-white text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-colors shadow-lg shadow-blue-600/30"
+            onClick={() => setIsOpen(false)}
+          >
             Solicitar cotización
-          </button>
+          </Link>
         </div>
       </div>
     </div>
