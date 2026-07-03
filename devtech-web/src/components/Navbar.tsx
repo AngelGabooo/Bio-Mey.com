@@ -46,6 +46,7 @@ function useScrollVisibility() {
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { visible, scrolled } = useScrollVisibility();
 
@@ -114,7 +115,6 @@ const Navbar = () => {
             {/* Menú Desktop */}
             <div className="hidden lg:flex items-center gap-8">
               {navLinks.map((link) => {
-                // Si es el enlace de "Servicios", mostramos dropdown
                 if (link.label === 'Servicios') {
                   return (
                     <div key={link.label} ref={dropdownRef} className="relative">
@@ -134,7 +134,6 @@ const Navbar = () => {
                         <span className="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 group-hover:w-full"></span>
                       </button>
 
-                      {/* Dropdown de servicios */}
                       <div
                         className={`absolute left-0 mt-2 w-56 rounded-xl border border-white/10 bg-[#0a0a14]/95 backdrop-blur-xl shadow-xl shadow-black/40 overflow-hidden transition-all duration-200 origin-top ${
                           dropdownOpen
@@ -159,7 +158,6 @@ const Navbar = () => {
                   );
                 }
 
-                // Los demás enlaces
                 return (
                   <Link
                     key={link.label}
@@ -201,49 +199,80 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Menú Móvil: panel flotante independiente debajo del navbar */}
+      {/* Menú Móvil mejorado */}
       <div
         className={`lg:hidden max-w-5xl mx-auto transition-all duration-300 ease-out origin-top ${
-          isOpen ? 'max-h-[32rem] opacity-100 scale-y-100 mt-2' : 'max-h-0 opacity-0 scale-y-95 mt-0 pointer-events-none'
+          isOpen ? 'max-h-[36rem] opacity-100 scale-y-100 mt-2' : 'max-h-0 opacity-0 scale-y-95 mt-0 pointer-events-none'
         } overflow-hidden`}
       >
-        <div className="rounded-2xl border border-white/10 bg-[#0a0a14]/90 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-3">
-          {navLinks.map((link) => {
-            // Para "Servicios" en móvil, mostramos los sub-enlaces directamente
-            if (link.label === 'Servicios') {
-              return (
-                <div key={link.label}>
-                  <div className="px-4 py-2 text-blue-300/70 text-sm font-medium uppercase tracking-wider">
-                    Servicios
-                  </div>
-                  {serviceLinks.map((service) => (
-                    <Link
-                      key={service.label}
-                      to={service.href}
-                      className="block pl-8 px-4 py-2.5 text-blue-100 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
-                      onClick={() => setIsOpen(false)}
+        <div className="rounded-2xl border border-white/10 bg-[#0a0a14]/95 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-4">
+          <div className="space-y-1">
+            {navLinks.map((link) => {
+              // Para "Servicios" en móvil - con toggle para expandir/contraer
+              if (link.label === 'Servicios') {
+                return (
+                  <div key={link.label}>
+                    <button
+                      onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                      className="w-full flex items-center justify-between px-4 py-3 text-blue-100 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
                     >
-                      {service.label}
-                    </Link>
-                  ))}
-                </div>
-              );
-            }
+                      <span>Servicios</span>
+                      <svg
+                        className={`w-4 h-4 transition-transform duration-300 ${mobileServicesOpen ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    {/* Submenú de servicios en móvil */}
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        mobileServicesOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
+                      }`}
+                    >
+                      <div className="ml-4 pl-2 border-l border-white/10 space-y-0.5">
+                        {serviceLinks.map((service) => (
+                          <Link
+                            key={service.label}
+                            to={service.href}
+                            className="block px-4 py-2.5 text-blue-100/70 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
+                            onClick={() => {
+                              setIsOpen(false);
+                              setMobileServicesOpen(false);
+                            }}
+                          >
+                            {service.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
 
-            return (
-              <Link
-                key={link.label}
-                to={link.href}
-                className="block px-4 py-3 text-blue-100 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
-                onClick={() => setIsOpen(false)}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+              return (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="block px-4 py-3 text-blue-100 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Línea divisoria */}
+          <div className="my-3 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+          {/* Botón CTA */}
           <Link
             to="#contacto"
-            className="block w-full mt-2 px-6 py-3 text-center text-white text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-colors shadow-lg shadow-blue-600/30"
+            className="block w-full px-6 py-3 text-center text-white text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-colors shadow-lg shadow-blue-600/30"
             onClick={() => setIsOpen(false)}
           >
             Solicitar cotización
