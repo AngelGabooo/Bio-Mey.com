@@ -48,17 +48,17 @@ const Services = () => {
         </svg>
       )
     },
-    {
-      id: 4,
-      title: 'Soporte Técnico',
-      description: 'Asistencia técnica presencial y remota para resolver tus problemas.',
-      link: '#',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 5.636a9 9 0 010 12.728m0 0a9 9 0 01-12.728 0m12.728 0A9 9 0 015.636 5.636m12.728 0A9 9 0 015.636 18.364M12 8v4l3 3m-3-11a9 9 0 110 18 9 9 0 010-18z" />
-        </svg>
-      )
-    },
+   {
+  id: 4,
+  title: 'Soporte Técnico',
+  description: 'Asistencia técnica presencial y remota para resolver tus problemas.',
+  link: '/servicios/soporte-tecnico',  // ← Cambiar de '#' a la ruta correcta
+  icon: (
+    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 5.636a9 9 0 010 12.728m0 0a9 9 0 01-12.728 0m12.728 0A9 9 0 015.636 5.636m12.728 0A9 9 0 015.636 18.364M12 8v4l3 3m-3-11a9 9 0 110 18 9 9 0 010-18z" />
+    </svg>
+  )
+},
     {
       id: 5,
       title: 'Trámites Digitales',
@@ -82,16 +82,16 @@ const Services = () => {
       )
     },
     {
-      id: 7,
-      title: 'Instalación de Software',
-      description: 'Instalación y configuración de Windows, drivers, impresoras, paquetería Office y programas especializados.',
-      link: '#',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      )
-    },
+  id: 7,
+  title: 'Instalación de Software',
+  description: 'Instalación y configuración de Windows, drivers, impresoras, paquetería Office y programas especializados.',
+  link: '/servicios/instalacion-software',  // ← Cambiar de '#' a la ruta correcta
+  icon: (
+    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+  )
+},
     {
       id: 8,
       title: 'Formateo y Flasheo de Celulares',
