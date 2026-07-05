@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import Services from '../components/Services';
@@ -9,19 +11,47 @@ import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 
 const Home = () => {
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant',
+    });
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#0a0a14]">
+    <div className="min-h-screen bg-[#0a0a14] text-white overflow-x-hidden">
       <Navbar />
-      <Hero />
-      <Services />
-      <Technologies />
-      <Stats />
-      <Testimonials />
-      <FAQ />
-      <Contact />
+
+      <main>
+
+        {/* Hero */}
+        <Hero />
+
+        {/* Servicios */}
+        <Services />
+
+        {/* Tecnologías */}
+        <Technologies />
+
+        {/* Estadísticas */}
+        <Stats />
+
+        {/* Testimonios */}
+        <Testimonials />
+
+        {/* Preguntas frecuentes */}
+        <FAQ />
+
+        {/* Contacto */}
+        <Contact />
+
+      </main>
+
       <Footer />
     </div>
   );
 };
-  
+
 export default Home;

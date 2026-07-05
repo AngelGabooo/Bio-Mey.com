@@ -76,15 +76,7 @@ const ServicioWebHero = () => {
 >
   Ver paquetes y precios
 </a>
-              <a
-                href="#portafolio"
-                className="px-6 md:px-8 py-3 md:py-4 text-white font-semibold rounded-full 
-                         bg-white/10 backdrop-blur-sm border border-white/20 
-                         hover:bg-white/20 transition-all duration-300 
-                         text-center text-sm md:text-base"
-              >
-                Ver portafolio
-              </a>
+              
             </div>
           </div>
 

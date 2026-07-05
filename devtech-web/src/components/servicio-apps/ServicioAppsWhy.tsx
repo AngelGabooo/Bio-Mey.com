@@ -105,20 +105,7 @@ const ServicioAppsWhy = () => {
               Un software para teléfonos que conecta tu empresa con tus clientes, optimiza procesos y ofrece experiencias más rápidas y personalizadas.
             </p>
 
-            <a
-              href="#contacto"
-              className="group inline-flex items-center gap-2.5 px-6 py-3.5 text-white text-sm font-semibold rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-xl hover:shadow-purple-600/25 transition-all duration-300"
-            >
-              Solicitar cotización
-              <svg
-                className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </a>
+            
           </div>
 
           {/* Imagen del celular */}

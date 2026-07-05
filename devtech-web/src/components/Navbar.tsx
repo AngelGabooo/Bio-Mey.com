@@ -275,7 +275,7 @@ const Navbar = () => {
             className="block w-full px-6 py-3 text-center text-white text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-colors shadow-lg shadow-blue-600/30"
             onClick={() => setIsOpen(false)}
           >
-            Solicitar cotización
+            Solicitar cotización  
           </Link>
         </div>
       </div>

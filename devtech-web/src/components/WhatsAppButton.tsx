@@ -4,319 +4,417 @@ interface Message {
   id: string;
   text: string;
   sender: 'bot' | 'user';
-  options?: { label: string; value: string; next?: string }[];
+  options?: { label: string; value: string }[];
 }
+
+type Step = 'askName' | 'askService' | 'askPhone' | 'askDetails' | 'done';
+
+interface ChatState {
+  messages: Message[];
+  currentStep: Step;
+  userName: string;
+  userPhone: string;
+  selectedService: string;
+}
+
+const STORAGE_KEY = 'biomey_chat_state';
 
 const WhatsAppButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentStep, setCurrentStep] = useState<'initial' | 'service' | 'web' | 'mobile' | 'pc' | 'support' | 'digital' | 'it'>('initial');
+  const [currentStep, setCurrentStep] = useState<Step>('askName');
   const [userName, setUserName] = useState('');
   const [userPhone, setUserPhone] = useState('');
   const [selectedService, setSelectedService] = useState('');
-  const [showNameInput, setShowNameInput] = useState(false);
-  const [showPhoneInput, setShowPhoneInput] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Número de WhatsApp (reemplaza con tu número)
-  const PHONE_NUMBER = '5219611234567'; // Formato: código país + número
+  const PHONE_NUMBER = '528144384806'; // Formato: código país + número
 
-  // Servicios disponibles
   const services = [
-    { id: 'web', label: '💻 Desarrollo Web', emoji: '💻' },
-    { id: 'mobile', label: '📱 Aplicaciones Móviles', emoji: '📱' },
-    { id: 'pc', label: '🖥️ Mantenimiento de PC', emoji: '🖥️' },
-    { id: 'support', label: '🛠️ Soporte Técnico', emoji: '🛠️' },
-    { id: 'digital', label: '📄 Trámites Digitales', emoji: '📄' },
-    { id: 'it', label: '🧠 Asesoría IT', emoji: '🧠' },
+    { id: 'web', label: 'Desarrollo Web', icon: 'M13.5 3H12H8.2c-1.12 0-1.68 0-2.108.218a2 2 0 00-.874.874C5 4.52 5 5.08 5 6.2v11.6c0 1.12 0 1.68.218 2.108a2 2 0 00.874.874C6.52 21 7.08 21 8.2 21h7.6c1.12 0 1.68 0 2.108-.218a2 2 0 00.874-.874C19 19.48 19 18.92 19 17.8V8.5M13.5 3L19 8.5M13.5 3v3.4c0 .56 0 .84.109 1.054a1 1 0 00.437.437C14.26 8 14.54 8 15.1 8h3.9', keywords: ['web', 'pagina', 'página', 'sitio', 'landing'] },
+    { id: 'mobile', label: 'Aplicaciones Móviles', icon: 'M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0v.75h3v-.75m-3 0h3m-3 18.75h3', keywords: ['app', 'aplicacion', 'aplicación', 'movil', 'móvil', 'android', 'ios'] },
+    { id: 'pc', label: 'Mantenimiento de PC', icon: 'M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25', keywords: ['pc', 'computadora', 'lenta', 'lento', 'virus', 'traba', 'no prende', 'malware'] },
+    { id: 'support', label: 'Soporte Técnico', icon: 'M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091.99-.203 2.003-.877 2.726L7.5 12.5', keywords: ['soporte', 'ayuda', 'instalar', 'configurar', 'red', 'internet no funciona'] },
+    { id: 'digital', label: 'Trámites Digitales', icon: 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z', keywords: ['tramite', 'trámite', 'sat', 'gobierno', 'documento', 'factura'] },
+    { id: 'it', label: 'Asesoría IT', icon: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z', keywords: ['asesoria', 'asesoría', 'consultoria', 'consultoría', 'estrategia', 'proyecto tecnologico'] },
   ];
 
-  // Información detallada por servicio
-  const serviceInfo = {
+  const serviceInfo: Record<string, { title: string; description: string; questions: string }> = {
     web: {
       title: 'Desarrollo Web',
-      description: '✅ Páginas web modernas y optimizadas\n✅ Diseño responsivo (móvil, tablet, escritorio)\n✅ SEO para mejorar posicionamiento\n✅ Integración con WhatsApp y redes sociales\n✅ Panel administrativo (CMS) disponible',
-      questions: '¿Qué tipo de página necesitas?\n• Landing Page (una página)\n• Página para negocio (5-6 secciones)\n• Página profesional (hasta 15 secciones)\n• Página empresarial (completa)'
+      description: 'Páginas modernas y optimizadas, diseño responsivo, SEO y panel administrativo disponible.',
+      questions: '¿Qué tipo de página necesitas?\n• Landing page\n• Página para negocio (5-6 secciones)\n• Página profesional (hasta 15 secciones)\n• Página empresarial completa',
     },
     mobile: {
       title: 'Aplicaciones Móviles',
-      description: '✅ Apps para Android e iOS\n✅ Diseño intuitivo y moderno\n✅ Alto rendimiento y seguridad\n✅ Integración con APIs\n✅ Publicación en tiendas oficiales',
-      questions: '¿Qué tipo de app necesitas?\n• App para clientes/usuarios\n• App para administración interna\n• App con conexión a base de datos\n• App con geolocalización'
+      description: 'Apps para Android e iOS, diseño intuitivo, alto rendimiento y publicación en tiendas oficiales.',
+      questions: '¿Qué tipo de app necesitas?\n• App para clientes/usuarios\n• App de administración interna\n• App con base de datos\n• App con geolocalización',
     },
     pc: {
       title: 'Mantenimiento de PC',
-      description: '✅ Limpieza física y de software\n✅ Optimización del sistema\n✅ Eliminación de virus y malware\n✅ Respaldo de datos\n✅ Mejora de rendimiento',
-      questions: '¿Qué problema tienes con tu PC?\n• Está lenta o se traba\n• Tiene virus o malware\n• Necesita limpieza física\n• Quiere mejorar el rendimiento'
+      description: 'Limpieza física y de software, eliminación de virus, respaldo de datos y mejora de rendimiento.',
+      questions: '¿Qué problema tienes con tu equipo?\n• Está lento o se traba\n• Tiene virus o malware\n• Necesita limpieza física\n• Quiero mejorar el rendimiento',
     },
     support: {
       title: 'Soporte Técnico',
-      description: '✅ Asistencia presencial y remota\n✅ Resolución de problemas técnicos\n✅ Configuración de equipos\n✅ Instalación de software\n✅ Diagnóstico y reparación',
-      questions: '¿Qué tipo de soporte necesitas?\n• Soporte remoto (vía conexión segura)\n• Soporte presencial en tu ubicación\n• Instalación de programas\n• Configuración de red'
+      description: 'Asistencia presencial y remota, configuración de equipos, instalación de software y diagnóstico.',
+      questions: '¿Qué tipo de soporte necesitas?\n• Soporte remoto\n• Soporte presencial\n• Instalación de programas\n• Configuración de red',
     },
     digital: {
       title: 'Trámites Digitales',
-      description: '✅ Trámites oficiales en línea\n✅ Gestión rápida y segura\n✅ Asesoría personalizada\n✅ Seguimiento de procesos\n✅ Documentación digital',
-      questions: '¿Qué trámite necesitas realizar?\n• Trámite del SAT\n• Trámite de gobierno\n• Gestión empresarial\n• Documentación oficial'
+      description: 'Trámites oficiales en línea, gestión rápida y segura, con asesoría y seguimiento del proceso.',
+      questions: '¿Qué trámite necesitas realizar?\n• Trámite del SAT\n• Trámite de gobierno\n• Gestión empresarial\n• Documentación oficial',
     },
     it: {
       title: 'Asesoría IT',
-      description: '✅ Asesoría tecnológica personalizada\n✅ Planificación de proyectos digitales\n✅ Selección de herramientas y tecnologías\n✅ Optimización de procesos\n✅ Estrategia digital para tu negocio',
-      questions: '¿En qué área necesitas asesoría?\n• Transformación digital\n• Selección de software\n• Optimización de procesos\n• Seguridad informática'
-    }
+      description: 'Asesoría tecnológica personalizada, planificación de proyectos y estrategia digital para tu negocio.',
+      questions: '¿En qué área necesitas asesoría?\n• Transformación digital\n• Selección de software\n• Optimización de procesos\n• Seguridad informática',
+    },
   };
 
-  // Iniciar chat
+  // Detecta un servicio a partir de texto libre, buscando coincidencias de palabras clave
+  const detectServiceFromText = (text: string): string | null => {
+    const normalized = text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, ''); // quita acentos para comparar mejor
+
+    for (const service of services) {
+      for (const keyword of service.keywords) {
+        const plainKeyword = keyword.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (normalized.includes(plainKeyword)) return service.id;
+      }
+    }
+    return null;
+  };
+
+  // ¿Estamos en horario de atención? (lunes a sábado, 9am a 8pm, hora local del navegador)
+  const isBusinessHours = () => {
+    const now = new Date();
+    const day = now.getDay(); // 0 = domingo
+    const hour = now.getHours();
+    return day >= 1 && day <= 6 && hour >= 9 && hour < 20;
+  };
+
+  // Añade un mensaje del bot simulando que está escribiendo
+  const sendBotMessage = (text: string, options?: Message['options'], delay = 600) => {
+    setIsTyping(true);
+    setTimeout(() => {
+      setIsTyping(false);
+      setMessages(prev => [...prev, { id: Date.now().toString() + Math.random(), text, sender: 'bot', options }]);
+    }, delay);
+  };
+
+  const resetChat = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setMessages([]);
+    setCurrentStep('askName');
+    setUserName('');
+    setUserPhone('');
+    setSelectedService('');
+    setInputValue('');
+    sendBotMessage('¡Hola! Soy el asistente de BioMey. ¿Cuál es tu nombre?', undefined, 300);
+  };
+
+  // Al montar, intenta recuperar una conversación anterior sin terminar
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed: ChatState = JSON.parse(saved);
+        if (parsed.messages?.length && parsed.currentStep !== 'done') {
+          setMessages(parsed.messages);
+          setCurrentStep(parsed.currentStep);
+          setUserName(parsed.userName);
+          setUserPhone(parsed.userPhone);
+          setSelectedService(parsed.selectedService);
+        }
+      }
+    } catch {
+      // si el guardado está corrupto, simplemente se ignora y empieza de cero
+    }
+  }, []);
+
+  // Guarda automáticamente el progreso cada vez que cambia algo relevante
+  useEffect(() => {
+    if (messages.length === 0) return;
+    const state: ChatState = { messages, currentStep, userName, userPhone, selectedService };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [messages, currentStep, userName, userPhone, selectedService]);
+
   const startChat = () => {
     setIsOpen(true);
-    setMessages([
-      {
-        id: '1',
-        text: '👋 ¡Hola! Soy el asistente de DevTech. ¿Cuál es tu nombre?',
-        sender: 'bot'
-      }
-    ]);
-    setShowNameInput(true);
-    setCurrentStep('initial');
+    if (messages.length === 0) resetChat();
   };
 
-  // Cerrar chat
-  const closeChat = () => {
-    setIsOpen(false);
-    // Resetear todo después de cerrar
-    setTimeout(() => {
-      setMessages([]);
-      setCurrentStep('initial');
-      setUserName('');
-      setUserPhone('');
-      setSelectedService('');
-      setShowNameInput(false);
-      setShowPhoneInput(false);
-      setInputValue('');
-    }, 300);
+  const closeChat = () => setIsOpen(false);
+
+  // Abre WhatsApp de inmediato con lo que se sepa hasta el momento, sin terminar el cuestionario
+  const talkToHuman = () => {
+    const parts = [`Hola, quiero hablar con alguien de BioMey.`];
+    if (userName) parts.push(`Mi nombre es ${userName}.`);
+    if (selectedService) {
+      const label = services.find(s => s.id === selectedService)?.label;
+      if (label) parts.push(`Me interesa: ${label}.`);
+    }
+    const plainMessage = parts.join('\n');
+    window.open(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(plainMessage)}`, '_blank');
   };
 
-  // Manejar envío de mensajes
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
-
-    const userMessage = inputValue.trim();
-    setMessages(prev => [...prev, { id: Date.now().toString(), text: userMessage, sender: 'user' }]);
+    const userText = inputValue.trim();
+    setMessages(prev => [...prev, { id: Date.now().toString(), text: userText, sender: 'user' }]);
     setInputValue('');
-
-    // Procesar según el paso actual
-    setTimeout(() => {
-      processUserResponse(userMessage);
-    }, 500);
+    setTimeout(() => processUserResponse(userText), 200);
   };
 
-  // Procesar respuesta del usuario
   const processUserResponse = (response: string) => {
-    if (currentStep === 'initial') {
-      // Guardar nombre
-      setUserName(response);
-      setShowNameInput(false);
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        text: `✨ ¡Gracias ${response}! ¿Qué servicio te interesa?`,
-        sender: 'bot',
-        options: services.map(s => ({ label: s.label, value: s.id }))
-      }]);
-      setCurrentStep('service');
+    // Reinicio desde cualquier punto de la conversación
+    if (response.trim().toLowerCase() === 'reiniciar') {
+      resetChat();
       return;
     }
 
-    if (currentStep === 'service') {
-      // Seleccionar servicio
-      const selected = services.find(s => s.id === response);
-      if (selected) {
-        setSelectedService(selected.id);
-        const info = serviceInfo[selected.id as keyof typeof serviceInfo];
-        setMessages(prev => [...prev, {
-          id: Date.now().toString(),
-          text: `📌 **${info.title}**\n\n${info.description}\n\n${info.questions}`,
-          sender: 'bot'
-        }]);
-        setShowPhoneInput(true);
-        setCurrentStep('web'); // Cambiar según el servicio
-      } else {
-        setMessages(prev => [...prev, {
-          id: Date.now().toString(),
-          text: '❓ No entendí tu selección. Por favor, elige una opción de la lista:',
-          sender: 'bot',
-          options: services.map(s => ({ label: s.label, value: s.id }))
-        }]);
+    if (currentStep === 'askName') {
+      const name = response.trim();
+      if (name.length < 2) {
+        sendBotMessage('Necesito un nombre válido para continuar. ¿Cómo te llamas?');
+        return;
       }
+      setUserName(name);
+
+      // Si en el mismo mensaje ya mencionó qué necesita, saltamos directo a ese servicio
+      const detected = detectServiceFromText(name);
+      // (poco probable en el nombre, pero por si acaso no rompe el flujo)
+      sendBotMessage(`Gracias, ${name}. ¿Qué servicio te interesa?`, services.map(s => ({ label: s.label, value: s.id })));
+      setCurrentStep('askService');
       return;
     }
 
-    // Si ya tenemos el servicio y el teléfono, preguntar por el proyecto
-    if (showPhoneInput && response) {
-      setUserPhone(response);
-      setShowPhoneInput(false);
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        text: '📝 Cuéntame más sobre tu proyecto o lo que necesitas:',
-        sender: 'bot'
-      }]);
-      setCurrentStep('details');
+    if (currentStep === 'askService') {
+      // Primero intenta un match exacto (cuando viene de un botón)
+      let selected = services.find(s => s.id === response);
+
+      // Si no hubo match exacto, intenta detectar el servicio por texto libre
+      if (!selected) {
+        const detectedId = detectServiceFromText(response);
+        selected = services.find(s => s.id === detectedId);
+      }
+
+      if (!selected) {
+        sendBotMessage('No identifiqué el servicio. Puedes escribirlo con tus palabras o elegir una opción:', services.map(s => ({ label: s.label, value: s.id })));
+        return;
+      }
+      setSelectedService(selected.id);
+      const info = serviceInfo[selected.id];
+      sendBotMessage(`${info.title}\n\n${info.description}\n\n${info.questions}\n\nPor último, ¿a qué número te contactamos?`);
+      setCurrentStep('askPhone');
       return;
     }
 
-    if (currentStep === 'details') {
+    if (currentStep === 'askPhone') {
+      // Si el usuario escribió un correo en vez de un teléfono, lo detectamos y ajustamos
+      const looksLikeEmail = /\S+@\S+\.\S+/.test(response);
+      if (looksLikeEmail) {
+        sendBotMessage('Eso parece un correo, no un teléfono. ¿Me compartes tu número con lada (10 dígitos)?');
+        return;
+      }
+
+      const digits = response.replace(/\D/g, '');
+      if (digits.length < 10) {
+        sendBotMessage('Ese número no parece completo. ¿Puedes escribirlo de nuevo con lada (10 dígitos)?');
+        return;
+      }
+      setUserPhone(response.trim());
+      sendBotMessage('Cuéntame un poco más sobre tu proyecto o lo que necesitas:');
+      setCurrentStep('askDetails');
+      return;
+    }
+
+    if (currentStep === 'askDetails') {
       const serviceName = services.find(s => s.id === selectedService)?.label || '';
-      // Construir mensaje para WhatsApp
-      const whatsappMessage = `Hola, soy ${userName}.%0A%0A📞 Teléfono: ${userPhone}%0A📌 Servicio: ${serviceName}%0A📝 Proyecto: ${response}%0A%0A¡Espero su respuesta!`;
-
-      // Abrir WhatsApp con el mensaje predefinido
-      const url = `https://wa.me/${PHONE_NUMBER}?text=${whatsappMessage}`;
+      const plainMessage = `Hola, soy ${userName}.\n\nTeléfono: ${userPhone}\nServicio: ${serviceName}\nProyecto: ${response}\n\n¡Espero su respuesta!`;
+      const url = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(plainMessage)}`;
       window.open(url, '_blank');
 
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        text: `✅ ¡Excelente ${userName}! Te he preparado un mensaje para WhatsApp con toda la información.%0A%0A📲 Haz clic en el botón "Abrir WhatsApp" para enviarlo.`,
-        sender: 'bot'
-      }]);
+      const hoursNote = isBusinessHours()
+        ? ''
+        : '\n\nEstamos fuera de horario de atención (L-S, 9am-8pm), pero te contactaremos en cuanto abramos.';
+      sendBotMessage(`Listo, ${userName}. Preparé tu mensaje con toda la información. Toca "Abrir WhatsApp" para enviarlo.${hoursNote}`);
       setCurrentStep('done');
     }
   };
 
-  // Scroll automático
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isTyping]);
+
+  const placeholderFor = (step: Step) => {
+    switch (step) {
+      case 'askName': return 'Escribe tu nombre...';
+      case 'askService': return 'O escribe qué necesitas...';
+      case 'askPhone': return 'Escribe tu teléfono...';
+      case 'askDetails': return 'Describe tu proyecto...';
+      default: return 'Escribe un mensaje...';
+    }
+  };
+
+  // askService ya no deshabilita el input: ahora también acepta texto libre
+  const inputDisabled = currentStep === 'done';
 
   return (
     <>
       {/* Botón flotante de WhatsApp */}
       <button
         onClick={startChat}
-        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-2xl shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300 hover:scale-110 flex items-center justify-center group"
+        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-green-600 hover:bg-green-500 shadow-2xl shadow-green-900/40 hover:scale-110 transition-all duration-300 flex items-center justify-center"
         aria-label="WhatsApp"
       >
         <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
         </svg>
-        {/* Notificación */}
-        <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-[10px] font-bold flex items-center justify-center animate-pulse">
+        <span className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 rounded-full text-white text-[10px] font-bold flex items-center justify-center animate-pulse">
           1
         </span>
       </button>
 
       {/* Modal de chat */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] bg-[#0a0a14] rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
+        <div className="fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] bg-[#0e0620] rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 px-5 py-4 border-b border-white/10 flex items-center justify-between">
+          <div className="bg-white/5 px-5 py-4 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
               </div>
               <div>
-                <h3 className="text-white font-semibold text-sm">Asistente DevTech</h3>
-                <p className="text-blue-200/50 text-xs">En línea • Responde en minutos</p>
+                <h3 className="text-white font-semibold text-sm">Asistente BioMey</h3>
+                <p className="text-purple-200/50 text-xs flex items-center gap-1">
+                  <span className={`w-1.5 h-1.5 rounded-full ${isBusinessHours() ? 'bg-green-400' : 'bg-purple-300/50'}`} />
+                  {isBusinessHours() ? 'En línea • Responde en minutos' : 'Fuera de horario • Responde mañana'}
+                </p>
               </div>
             </div>
-            <button
-              onClick={closeChat}
-              className="text-blue-200/50 hover:text-white transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <button onClick={closeChat} className="text-purple-200/50 hover:text-white transition-colors" aria-label="Cerrar">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
           {/* Mensajes */}
-          <div className="h-[400px] overflow-y-auto p-4 space-y-3 bg-[#0a0a14]">
+          <div className="h-[400px] overflow-y-auto p-4 space-y-3 bg-[#0e0620]">
             {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
+              <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
                     msg.sender === 'user'
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                      : 'bg-white/5 backdrop-blur-sm border border-white/10 text-blue-200/90'
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-white/5 backdrop-blur-sm border border-white/10 text-purple-100/90'
                   }`}
                 >
                   <div className="text-sm whitespace-pre-wrap">{msg.text}</div>
                   {msg.options && (
                     <div className="mt-3 space-y-1.5">
-                      {msg.options.map((opt) => (
-                        <button
-                          key={opt.value}
-                          onClick={() => {
-                            setMessages(prev => [...prev, {
-                              id: Date.now().toString(),
-                              text: opt.label,
-                              sender: 'user'
-                            }]);
-                            setTimeout(() => {
-                              processUserResponse(opt.value);
-                            }, 300);
-                          }}
-                          className="w-full text-left px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 transition-all duration-200 text-white text-sm"
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
+                      {msg.options.map((opt) => {
+                        const service = services.find(s => s.id === opt.value);
+                        return (
+                          <button
+                            key={opt.value}
+                            onClick={() => {
+                              setMessages(prev => [...prev, { id: Date.now().toString(), text: opt.label, sender: 'user' }]);
+                              setTimeout(() => processUserResponse(opt.value), 200);
+                            }}
+                            className="w-full flex items-center gap-2 text-left px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 transition-all duration-200 text-white text-sm"
+                          >
+                            {service && (
+                              <svg className="w-4 h-4 text-purple-300 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d={service.icon} />
+                              </svg>
+                            )}
+                            {opt.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
               </div>
             ))}
+
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl px-4 py-2.5 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-purple-300/60 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <span className="w-1.5 h-1.5 bg-purple-300/60 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <span className="w-1.5 h-1.5 bg-purple-300/60 rounded-full animate-bounce" />
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Acceso directo a un humano, disponible en cualquier paso */}
+          {currentStep !== 'done' && (
+            <div className="px-4 pt-2 bg-[#0e0620]">
+              <button
+                onClick={talkToHuman}
+                className="text-xs text-purple-300/60 hover:text-purple-200 transition-colors underline underline-offset-2"
+              >
+                Prefiero hablar directo con alguien
+              </button>
+            </div>
+          )}
+
           {/* Input */}
           {currentStep !== 'done' && (
-            <div className="p-4 border-t border-white/10 bg-[#0a0a14]">
+            <div className="p-4 border-t border-white/10 bg-[#0e0620]">
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder={
-                    showNameInput ? 'Escribe tu nombre...' :
-                    showPhoneInput ? 'Escribe tu teléfono...' :
-                    currentStep === 'details' ? 'Describe tu proyecto...' :
-                    'Escribe un mensaje...'
-                  }
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 text-sm"
-                  disabled={currentStep === 'service' || currentStep === 'done'}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                  placeholder={placeholderFor(currentStep)}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-purple-200/30 focus:border-purple-400/50 focus:outline-none transition-colors duration-300 text-sm"
+                  disabled={inputDisabled}
                 />
                 <button
                   onClick={handleSendMessage}
-                  disabled={!inputValue.trim() || currentStep === 'service' || currentStep === 'done'}
-                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!inputValue.trim() || inputDisabled}
+                  className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 transition-all duration-300 text-white font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                  aria-label="Enviar"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                 </button>
               </div>
             </div>
           )}
 
-          {/* Botón final para abrir WhatsApp */}
+          {/* Acciones finales */}
           {currentStep === 'done' && (
-            <div className="p-4 border-t border-white/10 bg-[#0a0a14]">
+            <div className="p-4 border-t border-white/10 bg-[#0e0620] space-y-2">
               <button
-                onClick={() => {
-                  // Ya se abrió WhatsApp en el proceso
-                  closeChat();
-                }}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 transition-all duration-300 text-white font-semibold flex items-center justify-center gap-2"
+                onClick={closeChat}
+                className="w-full py-3 rounded-xl bg-green-600 hover:bg-green-500 transition-all duration-300 text-white font-semibold flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
                 Abrir WhatsApp
+              </button>
+              <button
+                onClick={resetChat}
+                className="w-full py-2 rounded-xl border border-white/10 text-purple-200/60 hover:text-white hover:border-white/20 transition-colors text-sm"
+              >
+                Iniciar nueva conversación
               </button>
             </div>
           )}

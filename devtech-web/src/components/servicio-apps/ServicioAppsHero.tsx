@@ -59,23 +59,14 @@ const ServicioAppsHero = () => {
             </p>
 
             {/* Botones CTA */}
+            
             <div 
               className="flex flex-col sm:flex-row gap-3 pt-1 sm:pt-2"
               data-aos="fade-up"
               data-aos-delay="400"
               data-aos-duration="600"
             >
-              <a
-                href="#contacto"
-                className="px-6 md:px-8 py-3 md:py-4 text-white font-semibold rounded-full 
-                         bg-gradient-to-r from-blue-600 to-purple-600 
-                         hover:from-blue-700 hover:to-purple-700 
-                         transition-all duration-300 
-                         shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 
-                         hover:scale-105 transform text-center text-sm md:text-base"
-              >
-                Solicitar cotización
-              </a>
+             
               <a
                 href="https://wa.me/528144384806"
                 target="_blank"
