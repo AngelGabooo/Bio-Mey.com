@@ -5,7 +5,7 @@ import './index.css'
 import App from './App.tsx'
 
 // ⚠️ TU MEASUREMENT ID
-const GA_MEASUREMENT_ID = 'G-15CXBQ9HTG'
+const GA_MEASUREMENT_ID = 'G-8KVE4XQ0QQ'
 
 // Inicializar Google Analytics (solo en producción)
 if (process.env.NODE_ENV === 'production') {
