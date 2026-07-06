@@ -45,10 +45,10 @@ const ServicioAppsFAQ = () => {
   };
 
   return (
-    <section className="relative py-16 md:py-24 bg-[#0a0a14] overflow-hidden">
-      {/* Glow de fondo */}
+    <section className="relative py-16 md:py-24 bg-white overflow-hidden">
+      {/* Glow de fondo - Cian suave */}
       <div className="absolute inset-0 flex items-center justify-center -z-10">
-        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container-custom relative z-10">
@@ -60,31 +60,31 @@ const ServicioAppsFAQ = () => {
             data-aos="fade-right"
             data-aos-duration="600"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/20 mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-              <span className="text-[10px] md:text-xs font-medium text-blue-300 tracking-wider uppercase">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-cyan-300 mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              <span className="text-[10px] md:text-xs font-medium text-cyan-600 tracking-wider uppercase">
                 FAQ
               </span>
             </div>
 
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-              Preguntas <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">frecuentes</span>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4">
+              Preguntas <span className="text-cyan-500">frecuentes</span>
             </h2>
-            <p className="text-blue-200/60 text-base md:text-lg mb-8">
+            <p className="text-gray-500 text-base md:text-lg mb-8">
               Resolvemos las dudas más comunes sobre aplicaciones móviles
             </p>
 
-            <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-8"></div>
+            <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-full mb-8"></div>
 
             <div className="flex justify-center items-center">
               <img
                 src="/img/signo.png"
                 alt="Preguntas frecuentes"
-                className="w-[280px] md:w-[320px] lg:w-[360px] h-auto drop-shadow-[0_20px_50px_rgba(59,130,246,0.25)] hover:scale-105 transition-transform duration-500"
+                className="w-[280px] md:w-[320px] lg:w-[360px] h-auto drop-shadow-[0_20px_50px_rgba(6,182,212,0.15)] hover:scale-105 transition-transform duration-500"
               />
             </div>
 
-            <p className="text-center text-blue-200/40 text-sm mt-4">
+            <p className="text-center text-gray-400 text-sm mt-4">
               ¿Tienes más preguntas? Contáctanos
             </p>
           </div>
@@ -95,13 +95,13 @@ const ServicioAppsFAQ = () => {
               {faqs.map((faq, index) => (
                 <div
                   key={index}
-                  className={`bg-white/[0.03] backdrop-blur-sm rounded-2xl border transition-all duration-300 ${
+                  className={`bg-white rounded-2xl border transition-all duration-300 ${
                     openIndex === index 
-                      ? 'border-blue-400/40 bg-white/[0.06] shadow-lg shadow-blue-600/5' 
-                      : 'border-white/10 hover:border-white/20 hover:bg-white/[0.05]'
+                      ? 'border-cyan-400 shadow-lg shadow-cyan-500/10' 
+                      : 'border-gray-200 hover:border-cyan-300 hover:shadow-md'
                   }`}
                 >
-                  {/* Pregunta - SIEMPRE VISIBLE */}
+                  {/* Pregunta */}
                   <button
                     onClick={() => toggleFAQ(index)}
                     className="w-full px-5 md:px-6 py-4 md:py-5 flex items-center justify-between gap-4 text-left group cursor-pointer"
@@ -109,20 +109,22 @@ const ServicioAppsFAQ = () => {
                     <div className="flex items-center gap-3">
                       <span className={`hidden sm:flex w-6 h-6 rounded-full items-center justify-center text-xs font-medium transition-all duration-300 ${
                         openIndex === index 
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                          : 'bg-white/5 text-blue-400/50 border border-white/10'
+                          ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white' 
+                          : 'bg-gray-100 text-gray-400 border border-gray-200'
                       }`}>
                         {index + 1}
                       </span>
-                      <span className="text-white font-medium text-sm md:text-base group-hover:text-blue-300 transition-colors duration-300">
+                      <span className={`text-gray-900 font-medium text-sm md:text-base transition-colors duration-300 ${
+                        openIndex === index ? 'text-cyan-600' : 'group-hover:text-cyan-600'
+                      }`}>
                         {faq.question}
                       </span>
                     </div>
                     <span
                       className={`flex-shrink-0 w-7 h-7 rounded-full border flex items-center justify-center transition-all duration-300 ${
                         openIndex === index
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 border-transparent shadow-lg shadow-blue-600/25'
-                          : 'bg-white/5 border-white/10 group-hover:border-blue-400/50'
+                          ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 border-transparent shadow-lg shadow-cyan-500/25'
+                          : 'bg-white border-gray-200 group-hover:border-cyan-400'
                       }`}
                     >
                       <svg
@@ -138,17 +140,17 @@ const ServicioAppsFAQ = () => {
                     </span>
                   </button>
 
-                  {/* Respuesta - Se expande/contrae */}
+                  {/* Respuesta */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
                       openIndex === index ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
                     }`}
                   >
                     <div className="px-5 md:px-6 pb-4 md:pb-5">
-                      <div className="h-px bg-gradient-to-r from-blue-600/20 to-purple-600/20 mb-4"></div>
+                      <div className="h-px bg-gradient-to-r from-cyan-400/20 to-cyan-500/20 mb-4"></div>
                       <div className="flex gap-3">
-                        <div className="w-1 h-auto rounded-full bg-gradient-to-b from-blue-600/30 to-purple-600/30 flex-shrink-0"></div>
-                        <p className="text-blue-200/70 text-sm md:text-base leading-relaxed">
+                        <div className="w-1 h-auto rounded-full bg-gradient-to-b from-cyan-400/30 to-cyan-500/30 flex-shrink-0"></div>
+                        <p className="text-gray-600 text-sm md:text-base leading-relaxed">
                           {faq.answer}
                         </p>
                       </div>
@@ -159,9 +161,9 @@ const ServicioAppsFAQ = () => {
             </div>
 
             <div className="mt-8 text-center">
-              <p className="text-blue-200/40 text-sm">
+              <p className="text-gray-400 text-sm">
                 ¿No encuentras tu pregunta? 
-                <a href="#contacto" className="text-blue-400 hover:text-blue-300 transition-colors ml-1">
+                <a href="#contacto" className="text-cyan-500 hover:text-cyan-600 transition-colors ml-1">
                   Contáctanos
                 </a>
               </p>

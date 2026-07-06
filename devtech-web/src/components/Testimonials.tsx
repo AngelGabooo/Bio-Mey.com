@@ -5,7 +5,7 @@ import 'aos/dist/aos.css';
 interface Testimonial {
   id: number;
   name: string;
-  role: string; // "Empresa" / cargo / o "Cliente particular"
+  role: string;
   text: string;
   rating: number;
 }
@@ -21,13 +21,13 @@ const initialTestimonials: Testimonial[] = [
   { id: 8, name: 'Lucía Herrera', role: 'Cliente particular', text: 'Soporte remoto rapidísimo, resolvieron un problema de virus en menos de una hora.', rating: 5 },
 ];
 
-// Estrellas de solo lectura (para las tarjetas)
+// Estrellas de solo lectura
 const StarsDisplay = ({ rating }: { rating: number }) => (
   <div className="flex gap-1">
     {[...Array(5)].map((_, i) => (
       <svg
         key={i}
-        className={`w-4 h-4 md:w-5 md:h-5 ${i < rating ? 'text-yellow-400' : 'text-white/10'}`}
+        className={`w-4 h-4 md:w-5 md:h-5 ${i < rating ? 'text-yellow-400' : 'text-gray-200'}`}
         fill="currentColor"
         viewBox="0 0 20 20"
       >
@@ -37,7 +37,7 @@ const StarsDisplay = ({ rating }: { rating: number }) => (
   </div>
 );
 
-// Selector de estrellas interactivo (para el formulario)
+// Selector de estrellas interactivo
 const StarsInput = ({ rating, onChange }: { rating: number; onChange: (n: number) => void }) => {
   const [hovered, setHovered] = useState(0);
   return (
@@ -54,7 +54,7 @@ const StarsInput = ({ rating, onChange }: { rating: number; onChange: (n: number
         >
           <svg
             className={`w-7 h-7 transition-colors duration-150 ${
-              (hovered || rating) >= n ? 'text-yellow-400' : 'text-white/15'
+              (hovered || rating) >= n ? 'text-yellow-400' : 'text-gray-300'
             }`}
             fill="currentColor"
             viewBox="0 0 20 20"
@@ -109,43 +109,40 @@ const Testimonials = () => {
       rating: form.rating,
     };
 
-    // TODO: cuando conectes Firebase, aquí guardarías el documento en Firestore, ej:
-    // await addDoc(collection(db, 'reviews'), newReview);
     setTestimonials((prev) => [newReview, ...prev]);
     setSubmitted(true);
     setTimeout(closeModal, 1400);
   };
 
-  // Duplicamos para el efecto de carrusel infinito
   const loopTestimonials = [...testimonials, ...testimonials, ...testimonials];
 
   return (
-    <section className="relative py-16 md:py-24 bg-[#0a0a14] overflow-hidden">
-      {/* Glow de fondo */}
+    <section className="relative py-16 md:py-24 bg-white overflow-hidden">
+      {/* Glow de fondo - Cian suave */}
       <div className="absolute inset-0 flex items-center justify-center -z-10">
-        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container-custom relative z-10">
         {/* Encabezado */}
         <div className="text-center mb-12 md:mb-16" data-aos="fade-up" data-aos-duration="600">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/20 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-            <span className="text-[10px] md:text-xs font-medium text-blue-300 tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-cyan-300 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span className="text-[10px] md:text-xs font-medium text-cyan-600 tracking-wider uppercase">
               Testimonios
             </span>
           </div>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            Lo que dicen nuestros <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">clientes</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4">
+            Lo que dicen nuestros <span className="text-cyan-500">clientes</span>
           </h2>
-          <p className="text-blue-200/60 text-base md:text-lg max-w-2xl mx-auto">
+          <p className="text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
             Historias reales de personas y empresas que confiaron en nosotros
           </p>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2 mt-6 px-6 py-3 text-white font-semibold text-sm rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-105 transform"
+            className="inline-flex items-center gap-2 mt-6 px-6 py-3 text-white font-semibold text-sm rounded-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105 transform"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -153,34 +150,33 @@ const Testimonials = () => {
             Deja tu reseña
           </button>
 
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mt-8 rounded-full"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-cyan-500 mx-auto mt-8 rounded-full"></div>
         </div>
 
         {/* Carrusel infinito de testimonios */}
         <div className="relative overflow-hidden py-4">
-          {/* Difuminado en los bordes */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-[#0a0a14] to-transparent z-10"></div>
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-[#0a0a14] to-transparent z-10"></div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10"></div>
 
           <div className="animate-scroll-testimonials flex gap-6 w-max">
             {loopTestimonials.map((t, index) => (
               <div
                 key={`${t.id}-${index}`}
-                className="group bg-white/5 backdrop-blur-sm rounded-2xl p-6 md:p-7 border border-white/10 hover:border-blue-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/20 w-[300px] md:w-[340px] flex-shrink-0"
+                className="group bg-white rounded-2xl p-6 md:p-7 border border-gray-200 hover:border-cyan-400 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 w-[300px] md:w-[340px] flex-shrink-0"
               >
                 <div className="mb-4">
                   <StarsDisplay rating={t.rating} />
                 </div>
-                <p className="text-blue-200/80 text-sm md:text-base leading-relaxed mb-6 line-clamp-4">
+                <p className="text-gray-700 text-sm md:text-base leading-relaxed mb-6 line-clamp-4">
                   "{t.text}"
                 </p>
-                <div className="flex items-center gap-3 pt-4 border-t border-white/5">
-                  <div className="w-11 h-11 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center text-blue-300 font-semibold border border-white/10 flex-shrink-0">
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
+                  <div className="w-11 h-11 md:w-12 md:h-12 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-600 font-semibold border border-cyan-300 flex-shrink-0">
                     {t.name.charAt(0)}
                   </div>
                   <div className="min-w-0">
-                    <h4 className="text-white font-semibold text-sm md:text-base truncate">{t.name}</h4>
-                    <p className="text-blue-200/50 text-xs md:text-sm truncate">{t.role}</p>
+                    <h4 className="text-gray-900 font-semibold text-sm md:text-base truncate">{t.name}</h4>
+                    <p className="text-gray-500 text-xs md:text-sm truncate">{t.role}</p>
                   </div>
                 </div>
               </div>
@@ -196,12 +192,12 @@ const Testimonials = () => {
           onClick={closeModal}
         >
           <div
-            className="relative w-full max-w-md bg-[#0f0f1a] border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl shadow-blue-900/40"
+            className="relative w-full max-w-md bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-2xl shadow-gray-900/40"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-blue-400/50 transition-colors"
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:border-cyan-400 transition-colors"
               aria-label="Cerrar"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,34 +207,34 @@ const Testimonials = () => {
 
             {submitted ? (
               <div className="text-center py-8">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-blue-600/20 border border-blue-400/40 flex items-center justify-center">
-                  <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-cyan-100 border border-cyan-300 flex items-center justify-center">
+                  <svg className="w-7 h-7 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-white font-semibold text-lg mb-1">¡Gracias por tu reseña!</h3>
-                <p className="text-blue-200/60 text-sm">Ya la agregamos a la lista.</p>
+                <h3 className="text-gray-900 font-semibold text-lg mb-1">¡Gracias por tu reseña!</h3>
+                <p className="text-gray-500 text-sm">Ya la agregamos a la lista.</p>
               </div>
             ) : (
               <>
-                <h3 className="text-white font-extrabold text-xl md:text-2xl mb-1">Deja tu reseña</h3>
-                <p className="text-blue-200/60 text-sm mb-6">Cuéntanos cómo fue tu experiencia con nosotros</p>
+                <h3 className="text-gray-900 font-extrabold text-xl md:text-2xl mb-1">Deja tu reseña</h3>
+                <p className="text-gray-500 text-sm mb-6">Cuéntanos cómo fue tu experiencia con nosotros</p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-medium text-blue-200/70 mb-1.5">Nombre</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Nombre</label>
                     <input
                       type="text"
                       required
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="Tu nombre"
-                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-blue-400/50 transition-colors"
+                      className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-blue-200/70 mb-1.5">¿Nos escribes como...?</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">¿Nos escribes como...?</label>
                     <div className="flex gap-2">
                       {(['particular', 'empresa'] as const).map((opt) => (
                         <button
@@ -247,8 +243,8 @@ const Testimonials = () => {
                           onClick={() => setForm({ ...form, type: opt })}
                           className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
                             form.type === opt
-                              ? 'bg-gradient-to-r from-blue-600 to-purple-600 border-transparent text-white'
-                              : 'bg-white/5 border-white/10 text-blue-200/60 hover:border-white/20'
+                              ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 border-transparent text-white'
+                              : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-cyan-300'
                           }`}
                         >
                           {opt === 'particular' ? 'Cliente particular' : 'Empresa'}
@@ -258,7 +254,7 @@ const Testimonials = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-blue-200/70 mb-1.5">
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">
                       {form.type === 'empresa' ? 'Nombre de la empresa / cargo' : 'Rol u ocupación (opcional)'}
                     </label>
                     <input
@@ -266,31 +262,31 @@ const Testimonials = () => {
                       value={form.roleOrCompany}
                       onChange={(e) => setForm({ ...form, roleOrCompany: e.target.value })}
                       placeholder={form.type === 'empresa' ? 'Ej. CEO, Belleza Natural' : 'Ej. Diseñadora freelance'}
-                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-blue-400/50 transition-colors"
+                      className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-blue-200/70 mb-1.5">Tu reseña</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Tu reseña</label>
                     <textarea
                       required
                       rows={3}
                       value={form.text}
                       onChange={(e) => setForm({ ...form, text: e.target.value })}
                       placeholder="Cuéntanos tu experiencia..."
-                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-blue-400/50 transition-colors resize-none"
+                      className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 transition-colors resize-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-blue-200/70 mb-1.5">Calificación</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Calificación</label>
                     <StarsInput rating={form.rating} onChange={(n) => setForm({ ...form, rating: n })} />
                   </div>
 
                   <button
                     type="submit"
                     disabled={!form.name.trim() || !form.text.trim() || form.rating === 0}
-                    className="w-full py-3 rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-blue-600/30"
+                    className="w-full py-3 rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/30"
                   >
                     Publicar reseña
                   </button>

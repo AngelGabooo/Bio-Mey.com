@@ -63,10 +63,10 @@ const Stats = () => {
   ];
 
   return (
-    <section className="relative py-16 md:py-24 bg-[#0a0a14] overflow-hidden">
-      {/* Glow de fondo */}
+    <section className="relative py-16 md:py-24 bg-white overflow-hidden">
+      {/* Glow de fondo - Cian suave */}
       <div className="absolute inset-0 flex items-center justify-center -z-10">
-        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container-custom relative z-10">
@@ -131,25 +131,25 @@ const CounterCard = ({ stat, index }) => {
   return (
     <div
       ref={cardRef}
-      className="group text-center p-6 md:p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/20 hover:-translate-y-1"
+      className="group text-center p-6 md:p-8 rounded-2xl bg-white border border-gray-200 hover:border-cyan-400 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:-translate-y-1"
       data-aos="fade-up"
       data-aos-delay={index * 100}
       data-aos-duration="600"
     >
-      {/* Icono - Transparente (blanco/azul) */}
-      <div className="text-blue-400/80 group-hover:text-blue-300 transition-colors duration-300 mb-3 md:mb-4 flex justify-center group-hover:scale-110 transition-transform duration-300">
+      {/* Icono - Cian */}
+      <div className="text-cyan-500 group-hover:text-cyan-600 transition-colors duration-300 mb-3 md:mb-4 flex justify-center group-hover:scale-110 transition-transform duration-300">
         {stat.icon}
       </div>
       
       {/* Valor con animación de conteo */}
-      <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-1 md:mb-2 group-hover:text-blue-400 transition-colors duration-300">
+      <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-1 md:mb-2 group-hover:text-cyan-600 transition-colors duration-300">
         {stat.prefix}
         {count}
         {stat.suffix}
       </div>
       
       {/* Label */}
-      <p className="text-blue-200/60 text-sm md:text-base group-hover:text-blue-300 transition-colors duration-300">
+      <p className="text-gray-500 text-sm md:text-base group-hover:text-cyan-600 transition-colors duration-300">
         {stat.label}
       </p>
     </div>

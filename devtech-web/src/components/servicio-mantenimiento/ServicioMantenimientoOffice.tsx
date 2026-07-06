@@ -33,10 +33,10 @@ const ServicioMantenimientoOffice = () => {
   ];
 
   return (
-    <section className="relative py-10 md:py-16 bg-[#0a0a14] overflow-hidden">
-      {/* Glow de fondo */}
+    <section className="relative py-10 md:py-16 bg-white overflow-hidden">
+      {/* Glow de fondo - Cian suave */}
       <div className="absolute inset-0 flex items-center justify-center -z-10">
-        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container-custom relative z-10 max-w-6xl mx-auto">
@@ -44,20 +44,18 @@ const ServicioMantenimientoOffice = () => {
           
           {/* Columna Izquierda - Texto */}
           <div data-aos="fade-right" data-aos-duration="600">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/20 mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-              <span className="text-[10px] md:text-xs font-medium text-blue-300 tracking-wider uppercase">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-cyan-300 mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              <span className="text-[10px] md:text-xs font-medium text-cyan-600 tracking-wider uppercase">
                 Office
               </span>
             </div>
 
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4">
               Instalamos y activamos la{' '}
-              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                paquetería Office
-              </span>
+              <span className="text-cyan-500">paquetería Office</span>
             </h2>
-            <p className="text-blue-200/60 text-base md:text-lg mb-6">
+            <p className="text-gray-500 text-base md:text-lg mb-6">
               Trabaja con las mejores herramientas para ser más productivo.
             </p>
 
@@ -66,13 +64,13 @@ const ServicioMantenimientoOffice = () => {
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-3 text-blue-200/70 text-sm md:text-base group hover:text-blue-300 transition-colors duration-300"
+                  className="flex items-center gap-3 text-gray-600 text-sm md:text-base group hover:text-cyan-600 transition-colors duration-300"
                   data-aos="fade-up"
                   data-aos-delay={index * 100}
                   data-aos-duration="400"
                 >
-                  <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 border border-blue-400/20">
-                    <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-6 h-6 rounded-full bg-cyan-50 flex items-center justify-center flex-shrink-0 border border-cyan-300">
+                    <svg className="w-3.5 h-3.5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
@@ -81,25 +79,26 @@ const ServicioMantenimientoOffice = () => {
               ))}
             </div>
 
+           
           </div>
 
-          {/* Columna Derecha - Imagen mante1.png */}
+          {/* Columna Derecha - Imagen offi.png */}
           <div 
             className="relative flex items-center justify-center"
             data-aos="fade-left"
             data-aos-delay="200"
             data-aos-duration="600"
           >
-            {/* Anillos decorativos */}
-            <div className="pointer-events-none absolute w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-gradient-to-tr from-blue-600/20 via-purple-600/10 to-transparent blur-2xl"></div>
-            <div className="pointer-events-none absolute w-52 h-52 sm:w-60 sm:h-60 rounded-full border border-blue-400/20"></div>
-            <div className="pointer-events-none absolute w-40 h-40 rounded-full border border-purple-400/20"></div>
+            {/* Anillos decorativos - Cian */}
+            <div className="pointer-events-none absolute w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-gradient-to-tr from-cyan-400/20 via-cyan-300/10 to-transparent blur-2xl"></div>
+            <div className="pointer-events-none absolute w-52 h-52 sm:w-60 sm:h-60 rounded-full border border-cyan-300"></div>
+            <div className="pointer-events-none absolute w-40 h-40 rounded-full border border-cyan-300/60"></div>
 
             {/* Imagen */}
             <img
               src="/img/offi.png"
               alt="Instalación de Microsoft Office"
-              className="relative z-10 w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[380px] h-auto drop-shadow-[0_20px_45px_rgba(37,99,235,0.25)] animate-float"
+              className="relative z-10 w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[380px] h-auto drop-shadow-[0_20px_45px_rgba(6,182,212,0.15)] animate-float"
             />
           </div>
         </div>

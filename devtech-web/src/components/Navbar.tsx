@@ -72,6 +72,72 @@ const Navbar = () => {
 
   const isVisible = visible || isOpen;
 
+  // Renderizar link (interno o externo)
+  const renderLink = (link: { label: string; href: string }) => {
+    const isExternal = link.href.startsWith('http') || link.href.startsWith('https');
+    const isWhatsApp = link.href.includes('wa.me');
+
+    if (isExternal) {
+      return (
+        <a
+          key={link.label}
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors duration-200 relative group"
+        >
+          {link.label}
+          {isWhatsApp && (
+            <span className="absolute -top-1 -right-4 text-[10px]">💬</span>
+          )}
+          <span className="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-cyan-500 transition-all duration-300 group-hover:w-full"></span>
+        </a>
+      );
+    }
+
+    return (
+      <Link
+        key={link.label}
+        to={link.href}
+        className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors duration-200 relative group"
+      >
+        {link.label}
+        <span className="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-cyan-500 transition-all duration-300 group-hover:w-full"></span>
+      </Link>
+    );
+  };
+
+  // Renderizar link móvil (interno o externo)
+  const renderMobileLink = (link: { label: string; href: string }) => {
+    const isExternal = link.href.startsWith('http') || link.href.startsWith('https');
+
+    if (isExternal) {
+      return (
+        <a
+          key={link.label}
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors font-medium text-sm"
+          onClick={() => setIsOpen(false)}
+        >
+          {link.label}
+        </a>
+      );
+    }
+
+    return (
+      <Link
+        key={link.label}
+        to={link.href}
+        className="block px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors font-medium text-sm"
+        onClick={() => setIsOpen(false)}
+      >
+        {link.label}
+      </Link>
+    );
+  };
+
   return (
     <div
       className={`fixed top-3 md:top-5 inset-x-0 z-50 px-4 transition-all duration-500 ease-out ${
@@ -81,30 +147,39 @@ const Navbar = () => {
       <nav
         className={`max-w-5xl mx-auto rounded-2xl border transition-all duration-300 ${
           scrolled
-            ? 'bg-[#0a0a14]/80 backdrop-blur-xl border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]'
-            : 'bg-[#0a0a14]/40 backdrop-blur-md border-white/[0.06]'
+            ? 'bg-white/90 backdrop-blur-xl border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.08)]'
+            : 'bg-white/80 backdrop-blur-md border-gray-200/30'
         }`}
       >
         <div className="px-4 sm:px-5 lg:px-6">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
+            {/* Logo con imagen - RUTA CORREGIDA */}
             <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-              <span
-                className="w-9 h-9 rounded-lg border border-blue-400/40 bg-transparent flex items-center justify-center text-transparent bg-gradient-to-br from-blue-400 to-purple-400 bg-clip-text text-lg font-bold"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                aria-hidden="true"
-              >
-                B
-              </span>
+              <div className="relative w-9 h-9 rounded-lg overflow-hidden border border-cyan-400/30 shadow-md shadow-cyan-500/10 bg-white">
+                <img
+                  src="/img/bio.jpeg"
+                  alt="BioMey"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback si la imagen no carga
+                    e.currentTarget.style.display = 'none';
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      parent.className = 'w-9 h-9 rounded-lg border border-cyan-400/40 bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center text-white font-bold text-lg';
+                      parent.innerHTML = 'B';
+                    }
+                  }}
+                />
+              </div>
               <div className="flex flex-col leading-none">
                 <span
-                  className="text-lg font-bold tracking-tight bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent"
+                  className="text-lg font-bold tracking-tight text-gray-900"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   BioMey
                 </span>
                 <span
-                  className="hidden sm:inline text-[9px] text-blue-300/60 tracking-[0.2em] uppercase mt-0.5"
+                  className="hidden sm:inline text-[9px] text-gray-400 tracking-[0.2em] uppercase mt-0.5"
                   style={{ fontFamily: "'JetBrains Mono', monospace" }}
                 >
                   Agencia digital
@@ -120,7 +195,7 @@ const Navbar = () => {
                     <div key={link.label} ref={dropdownRef} className="relative">
                       <button
                         onClick={() => setDropdownOpen(!dropdownOpen)}
-                        className="text-sm font-medium text-blue-100/80 hover:text-white transition-colors duration-200 relative group flex items-center gap-1"
+                        className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors duration-200 relative group flex items-center gap-1"
                       >
                         Servicios
                         <svg
@@ -131,11 +206,11 @@ const Navbar = () => {
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
-                        <span className="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 group-hover:w-full"></span>
+                        <span className="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-cyan-500 transition-all duration-300 group-hover:w-full"></span>
                       </button>
 
                       <div
-                        className={`absolute left-0 mt-2 w-56 rounded-xl border border-white/10 bg-[#0a0a14]/95 backdrop-blur-xl shadow-xl shadow-black/40 overflow-hidden transition-all duration-200 origin-top ${
+                        className={`absolute left-0 mt-2 w-56 rounded-xl border border-gray-200/50 bg-white/95 backdrop-blur-xl shadow-xl shadow-black/5 overflow-hidden transition-all duration-200 origin-top ${
                           dropdownOpen
                             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
                             : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'
@@ -147,7 +222,7 @@ const Navbar = () => {
                               key={service.label}
                               to={service.href}
                               onClick={() => setDropdownOpen(false)}
-                              className="block px-4 py-2.5 text-sm text-blue-100/80 hover:text-white hover:bg-white/5 transition-colors duration-200"
+                              className="block px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200"
                             >
                               {service.label}
                             </Link>
@@ -158,33 +233,14 @@ const Navbar = () => {
                   );
                 }
 
-                return (
-                  <Link
-                    key={link.label}
-                    to={link.href}
-                    className="text-sm font-medium text-blue-100/80 hover:text-white transition-colors duration-200 relative group"
-                  >
-                    {link.label}
-                    <span className="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 group-hover:w-full"></span>
-                  </Link>
-                );
+                return renderLink(link);
               })}
-            </div>
-
-            {/* Botón de acción - Desktop */}
-            <div className="hidden lg:flex items-center">
-              <Link
-                to="#contacto"
-                className="px-5 py-2 text-white text-sm font-semibold rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-md shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-105 transform"
-              >
-                Solicitar cotización
-              </Link>
             </div>
 
             {/* Botón menú móvil */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 text-blue-100 hover:text-white hover:border-white/25 transition-colors"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors"
               aria-label="Toggle menu"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -199,22 +255,21 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Menú Móvil mejorado */}
+      {/* Menú Móvil */}
       <div
         className={`lg:hidden max-w-5xl mx-auto transition-all duration-300 ease-out origin-top ${
           isOpen ? 'max-h-[36rem] opacity-100 scale-y-100 mt-2' : 'max-h-0 opacity-0 scale-y-95 mt-0 pointer-events-none'
         } overflow-hidden`}
       >
-        <div className="rounded-2xl border border-white/10 bg-[#0a0a14]/95 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-4">
+        <div className="rounded-2xl border border-gray-200/50 bg-white/95 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] p-4">
           <div className="space-y-1">
             {navLinks.map((link) => {
-              // Para "Servicios" en móvil - con toggle para expandir/contraer
               if (link.label === 'Servicios') {
                 return (
                   <div key={link.label}>
                     <button
                       onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                      className="w-full flex items-center justify-between px-4 py-3 text-blue-100 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
+                      className="w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors font-medium text-sm"
                     >
                       <span>Servicios</span>
                       <svg
@@ -227,18 +282,17 @@ const Navbar = () => {
                       </svg>
                     </button>
                     
-                    {/* Submenú de servicios en móvil */}
                     <div
                       className={`overflow-hidden transition-all duration-300 ease-in-out ${
                         mobileServicesOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
                       }`}
                     >
-                      <div className="ml-4 pl-2 border-l border-white/10 space-y-0.5">
+                      <div className="ml-4 pl-2 border-l border-gray-200 space-y-0.5">
                         {serviceLinks.map((service) => (
                           <Link
                             key={service.label}
                             to={service.href}
-                            className="block px-4 py-2.5 text-blue-100/70 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
+                            className="block px-4 py-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors font-medium text-sm"
                             onClick={() => {
                               setIsOpen(false);
                               setMobileServicesOpen(false);
@@ -253,30 +307,9 @@ const Navbar = () => {
                 );
               }
 
-              return (
-                <Link
-                  key={link.label}
-                  to={link.href}
-                  className="block px-4 py-3 text-blue-100 hover:text-white hover:bg-white/10 rounded-xl transition-colors font-medium text-sm"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              );
+              return renderMobileLink(link);
             })}
           </div>
-
-          {/* Línea divisoria */}
-          <div className="my-3 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-
-          {/* Botón CTA */}
-          <Link
-            to="#contacto"
-            className="block w-full px-6 py-3 text-center text-white text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-colors shadow-lg shadow-blue-600/30"
-            onClick={() => setIsOpen(false)}
-          >
-            Solicitar cotización  
-          </Link>
         </div>
       </div>
     </div>

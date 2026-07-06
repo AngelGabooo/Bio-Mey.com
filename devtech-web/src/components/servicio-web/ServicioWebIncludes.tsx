@@ -51,14 +51,14 @@ const ServicioWebIncludes = () => {
   }, []);
 
   const accents = [
-    'text-blue-300 border-blue-400/40',
-    'text-cyan-300 border-cyan-400/40',
-    'text-purple-300 border-purple-400/40',
-    'text-indigo-300 border-indigo-400/40',
-    'text-sky-300 border-sky-400/40',
-    'text-violet-300 border-violet-400/40',
-    'text-blue-300 border-blue-400/40',
-    'text-purple-300 border-purple-400/40',
+    'text-cyan-500 border-cyan-400/40',
+    'text-cyan-500 border-cyan-400/40',
+    'text-cyan-500 border-cyan-400/40',
+    'text-cyan-500 border-cyan-400/40',
+    'text-cyan-500 border-cyan-400/40',
+    'text-cyan-500 border-cyan-400/40',
+    'text-cyan-500 border-cyan-400/40',
+    'text-cyan-500 border-cyan-400/40',
   ];
 
   const benefits = [
@@ -153,19 +153,19 @@ const ServicioWebIncludes = () => {
   ];
 
   return (
-    <section className="relative py-16 md:py-24 bg-[#0a0a14] overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* Glow de fondo */}
+    <section className="relative py-16 md:py-24 bg-white overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* Glow de fondo - Cian suave */}
       <div className="absolute inset-0 flex items-center justify-center -z-10">
-        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container-custom relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Encabezado */}
         <Reveal className="text-center mb-12 md:mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-blue-400/30 mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-cyan-300 mb-5">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
             <span
-              className="text-[11px] text-blue-300 tracking-[0.2em] uppercase"
+              className="text-[11px] text-cyan-600 tracking-[0.2em] uppercase"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
               Beneficios
@@ -173,54 +173,54 @@ const ServicioWebIncludes = () => {
           </div>
 
           <h2
-            className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white mb-4"
+            className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 mb-4"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             ¿Por qué tu negocio{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="text-cyan-500">
               necesita una página web
             </span>
             ?
           </h2>
-          <p className="text-blue-200/60 text-base md:text-lg max-w-2xl mx-auto">
+          <p className="text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
             Descubre los beneficios clave de tener presencia en línea y cómo puede transformar tu negocio
           </p>
         </Reveal>
 
         {/* Barra de estadísticas */}
         <Reveal className="mb-14 md:mb-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-2xl overflow-hidden border border-white/10 bg-white/10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-2xl overflow-hidden border border-gray-200 bg-gray-50">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center px-4 py-6 md:py-7 bg-[#0a0a14]/90 backdrop-blur-sm">
+              <div key={index} className="text-center px-4 py-6 md:py-7 bg-white">
                 <div
-                  className="text-3xl md:text-4xl font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+                  className="text-3xl md:text-4xl font-semibold text-cyan-600"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {stat.value}
                 </div>
-                <p className="text-blue-200/50 text-xs md:text-sm mt-1.5 leading-snug px-1">{stat.label}</p>
+                <p className="text-gray-500 text-xs md:text-sm mt-1.5 leading-snug px-1">{stat.label}</p>
               </div>
             ))}
           </div>
         </Reveal>
 
         {/* Lista editorial de beneficios */}
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] divide-y divide-white/[0.06] overflow-hidden">
+        <div className="rounded-2xl border border-gray-200 bg-white divide-y divide-gray-100 overflow-hidden">
           {benefits.map((benefit, index) => (
             <Reveal
               key={benefit.id}
               delay={index * 50}
-              className="group flex items-start gap-4 md:gap-6 px-5 md:px-8 py-6 hover:bg-white/[0.03] transition-colors duration-300"
+              className="group flex items-start gap-4 md:gap-6 px-5 md:px-8 py-6 hover:bg-gray-50 transition-colors duration-300"
             >
               {/* Índice */}
               <span
-                className="hidden sm:block text-blue-200/30 text-sm w-7 pt-1 flex-shrink-0"
+                className="hidden sm:block text-gray-300 text-sm w-7 pt-1 flex-shrink-0"
                 style={{ fontFamily: "'JetBrains Mono', monospace" }}
               >
                 {String(index + 1).padStart(2, '0')}
               </span>
 
-              {/* Icono transparente */}
+              {/* Icono */}
               <div
                 className={`w-11 h-11 flex-shrink-0 rounded-xl bg-transparent border flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${accents[index]}`}
               >
@@ -230,12 +230,12 @@ const ServicioWebIncludes = () => {
               {/* Texto */}
               <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-baseline sm:gap-6">
                 <h3
-                  className="text-white font-semibold text-base md:text-lg sm:w-64 flex-shrink-0"
+                  className="text-gray-900 font-semibold text-base md:text-lg sm:w-64 flex-shrink-0"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {benefit.title}
                 </h3>
-                <p className="text-blue-200/50 text-sm leading-relaxed mt-1 sm:mt-0">{benefit.description}</p>
+                <p className="text-gray-500 text-sm leading-relaxed mt-1 sm:mt-0">{benefit.description}</p>
               </div>
             </Reveal>
           ))}

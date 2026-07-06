@@ -82,10 +82,10 @@ const ServicioAppsProcess = () => {
   ];
 
   return (
-    <section ref={sectionRef} className="relative py-14 md:py-20 bg-[#0a0a14] overflow-hidden">
-      {/* Glow de fondo */}
+    <section ref={sectionRef} className="relative py-14 md:py-20 bg-white overflow-hidden">
+      {/* Glow de fondo - Cian suave */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-gradient-to-r from-purple-600/10 to-blue-600/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container-custom relative z-10 max-w-6xl mx-auto px-5">
@@ -95,31 +95,29 @@ const ServicioAppsProcess = () => {
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/20 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-            <span className="text-[10px] md:text-xs font-medium text-blue-300 tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-cyan-300 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span className="text-[10px] md:text-xs font-medium text-cyan-600 tracking-wider uppercase">
               Nuestro proceso
             </span>
           </div>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white leading-tight mt-3">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight mt-3">
             De tu idea a una app que{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              tus clientes van a usar
-            </span>
+            <span className="text-cyan-500">tus clientes van a usar</span>
           </h2>
-          <p className="text-blue-200/50 text-sm md:text-base max-w-lg mx-auto mt-3">
+          <p className="text-gray-500 text-sm md:text-base max-w-lg mx-auto mt-3">
             Así te acompañamos en cada paso, explicado en simple, sin tecnicismos.
           </p>
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mt-4 rounded-full"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-cyan-500 mx-auto mt-4 rounded-full"></div>
         </div>
 
         {/* Proceso - Horizontal en desktop, vertical en móvil */}
         <div className="relative">
           {/* Línea horizontal en desktop */}
-          <div className="hidden md:block absolute left-[5%] right-[5%] top-[30px] h-0.5 bg-gradient-to-r from-blue-600/20 via-purple-600/30 to-blue-600/20"></div>
+          <div className="hidden md:block absolute left-[5%] right-[5%] top-[30px] h-0.5 bg-gradient-to-r from-cyan-400/20 via-cyan-500/30 to-cyan-400/20"></div>
           
           {/* Línea vertical en móvil */}
-          <div className="md:hidden absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-600/20 via-purple-600/30 to-blue-600/20"></div>
+          <div className="md:hidden absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-400/20 via-cyan-500/30 to-cyan-400/20"></div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-4">
             {steps.map((step, index) => (
@@ -133,25 +131,25 @@ const ServicioAppsProcess = () => {
                 {/* Círculo numerado con conexión */}
                 <div className="relative z-10 flex items-center gap-4 md:gap-0 md:flex-col w-full md:w-auto">
                   {/* Círculo */}
-                  <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-600/30 z-10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-blue-600/50">
+                  <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-r from-cyan-500 to-cyan-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-cyan-500/30 z-10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-cyan-500/50">
                     {step.id}
                   </div>
 
                   {/* Contenido - En móvil a la derecha, en desktop abajo */}
                   <div className="flex-1 md:flex-none md:mt-4 md:text-center">
                     <div className="flex items-center gap-3 md:gap-0 md:flex-col">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-r from-blue-600/20 to-purple-600/20 flex items-center justify-center text-blue-400 border border-blue-400/20 md:mb-2 transition-all duration-300 group-hover:scale-110 group-hover:text-blue-300">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white border border-cyan-300 flex items-center justify-center text-cyan-500 md:mb-2 transition-all duration-300 group-hover:scale-110 group-hover:text-cyan-600 group-hover:border-cyan-400">
                         {step.icon}
                       </div>
-                      <h3 className="text-sm md:text-base font-bold text-white group-hover:text-blue-300 transition-colors duration-300">
+                      <h3 className="text-sm md:text-base font-bold text-gray-900 group-hover:text-cyan-600 transition-colors duration-300">
                         {step.title}
                       </h3>
                     </div>
-                    <p className="text-blue-200/50 text-xs md:text-sm leading-relaxed mt-1 md:mt-2 max-w-[180px] md:max-w-none hidden md:block">
+                    <p className="text-gray-500 text-xs md:text-sm leading-relaxed mt-1 md:mt-2 max-w-[180px] md:max-w-none hidden md:block">
                       {step.description}
                     </p>
                     {/* Descripción corta en móvil */}
-                    <p className="text-blue-200/50 text-xs leading-relaxed mt-0.5 md:hidden">
+                    <p className="text-gray-500 text-xs leading-relaxed mt-0.5 md:hidden">
                       {step.description.split('.')[0]}.
                     </p>
                   </div>
@@ -165,7 +163,7 @@ const ServicioAppsProcess = () => {
         <div className={`flex justify-center mt-10 md:mt-12 transition-all duration-700 ${
           visible ? 'opacity-100' : 'opacity-0'
         }`}>
-          <div className="flex items-center gap-2 text-blue-200/40 text-xs">
+          <div className="flex items-center gap-2 text-cyan-400/40 text-xs">
             <span>Inicio</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />

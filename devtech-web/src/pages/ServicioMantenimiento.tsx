@@ -41,10 +41,11 @@ const ServicioMantenimiento = () => {
         <ServicioMantenimientoPackages />
 
         {/* Precios según diagnóstico */}
-        <ServicioMantenimientoPricing />
 
         {/* Marcas que atendemos */}
         <ServicioMantenimientoBrands />
+                <ServicioMantenimientoPricing />
+
       </main>
 
       <Footer />

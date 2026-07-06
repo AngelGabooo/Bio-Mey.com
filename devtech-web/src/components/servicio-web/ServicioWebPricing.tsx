@@ -41,11 +41,12 @@ function Reveal({ as: Tag = 'div', delay = 0, className = '', children, ...rest 
 }
 
 /* ---------- Ticket perforation strip (signature element) ---------- */
-function Perforation() {
+function Perforation({ tone = 'default' }) {
+  const isPopular = tone === 'popular';
   return (
-    <div className="relative -mx-6 md:-mx-8 mb-6 h-px border-t border-dashed border-white/15">
-      <span className="absolute -top-1.5 left-4 w-3 h-3 rounded-full bg-[#0a0a14] ring-1 ring-white/10" />
-      <span className="absolute -top-1.5 right-4 w-3 h-3 rounded-full bg-[#0a0a14] ring-1 ring-white/10" />
+    <div className={`relative -mx-6 md:-mx-8 mb-6 h-px border-t border-dashed ${isPopular ? 'border-cyan-400/40' : 'border-gray-200'}`}>
+      <span className={`absolute -top-1.5 left-4 w-3 h-3 rounded-full ${isPopular ? 'bg-white' : 'bg-white'} ring-1 ${isPopular ? 'ring-cyan-400/40' : 'ring-gray-200'}`} />
+      <span className={`absolute -top-1.5 right-4 w-3 h-3 rounded-full ${isPopular ? 'bg-white' : 'bg-white'} ring-1 ${isPopular ? 'ring-cyan-400/40' : 'ring-gray-200'}`} />
     </div>
   );
 }
@@ -225,32 +226,32 @@ const ServicioWebPricing = () => {
 
   return (
     <section
-      className="relative py-16 md:py-24 bg-[#0a0a14] overflow-hidden"
+      className="relative py-16 md:py-24 bg-white overflow-hidden"
       id="paquetes"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       {/* Fondo: cuadrícula tipo plano técnico */}
       <div
-        className="absolute inset-0 opacity-[0.35] pointer-events-none"
+        className="absolute inset-0 opacity-[0.15] pointer-events-none"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
+            'linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)',
           backgroundSize: '48px 48px',
           maskImage: 'radial-gradient(ellipse 80% 60% at 50% 20%, black 40%, transparent 100%)',
           WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 20%, black 40%, transparent 100%)',
         }}
       />
       <div className="absolute inset-0 flex items-center justify-center -z-10">
-        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
         {/* Encabezado */}
         <Reveal className="text-center mb-14 md:mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-blue-400/30 mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-cyan-300 mb-5">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             <span
-              className="text-[11px] text-blue-300 tracking-[0.2em] uppercase"
+              className="text-[11px] text-cyan-600 tracking-[0.2em] uppercase"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
               Cotización de proyecto
@@ -258,15 +259,13 @@ const ServicioWebPricing = () => {
           </div>
 
           <h2
-            className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white mb-4"
+            className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 mb-4"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             Elige el paquete ideal para tu{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              proyecto
-            </span>
+            <span className="text-cyan-500">proyecto</span>
           </h2>
-          <p className="text-blue-200/60 text-base md:text-lg max-w-2xl mx-auto">
+          <p className="text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
             Cuatro fichas de trabajo, cuatro alcances distintos. Encuentra la que se ajusta al tamaño de tu negocio.
           </p>
         </Reveal>
@@ -281,8 +280,8 @@ const ServicioWebPricing = () => {
               className={`group relative flex flex-col h-full rounded-lg p-6 md:p-8 pt-8 border transition-all duration-500 hover:-translate-y-2
                 ${
                   plan.popular
-                    ? 'bg-gradient-to-b from-blue-600/15 via-purple-600/10 to-transparent border-blue-400/60 shadow-2xl shadow-blue-600/30 xl:scale-[1.03]'
-                    : 'bg-white/5 backdrop-blur-sm border-white/10 hover:border-blue-400/40'
+                    ? 'bg-gradient-to-b from-cyan-50 via-white to-white border-cyan-400 shadow-2xl shadow-cyan-500/20 xl:scale-[1.03]'
+                    : 'bg-white border-gray-200 hover:border-cyan-300'
                 }`}
             >
               {/* Sello "más pedido" */}
@@ -291,9 +290,9 @@ const ServicioWebPricing = () => {
                   className="absolute -top-3 -right-3 w-20 h-20 flex items-center justify-center rotate-12"
                   aria-hidden="true"
                 >
-                  <div className="w-16 h-16 rounded-full border-2 border-dashed border-blue-400 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full border-2 border-dashed border-cyan-400 flex items-center justify-center bg-white shadow-md">
                     <span
-                      className="text-[8px] leading-tight text-center text-blue-300 tracking-wider uppercase px-1"
+                      className="text-[8px] leading-tight text-center text-cyan-600 tracking-wider uppercase px-1"
                       style={{ fontFamily: "'JetBrains Mono', monospace" }}
                     >
                       Más pedido
@@ -302,10 +301,10 @@ const ServicioWebPricing = () => {
                 </div>
               )}
 
-              {/* Encabezado de ficha: código + ícono (transparente, solo borde) */}
+              {/* Encabezado de ficha: código + ícono */}
               <div className="flex items-center justify-between mb-5">
                 <span
-                  className={`text-xs tracking-widest ${plan.popular ? 'text-blue-300' : 'text-blue-200/50'}`}
+                  className={`text-xs tracking-widest ${plan.popular ? 'text-cyan-600' : 'text-gray-400'}`}
                   style={{ fontFamily: "'JetBrains Mono', monospace" }}
                 >
                   FICHA {plan.code}/04
@@ -313,8 +312,8 @@ const ServicioWebPricing = () => {
                 <div
                   className={`w-11 h-11 rounded-md flex items-center justify-center bg-transparent border transition-colors duration-300 ${
                     plan.popular
-                      ? 'border-blue-400/50 text-blue-300'
-                      : 'border-white/15 text-blue-400 group-hover:border-blue-400/40 group-hover:text-blue-300'
+                      ? 'border-cyan-400 text-cyan-500'
+                      : 'border-gray-200 text-gray-400 group-hover:border-cyan-300 group-hover:text-cyan-500'
                   }`}
                 >
                   {plan.icon}
@@ -326,33 +325,33 @@ const ServicioWebPricing = () => {
 
               {/* Nombre y descripción */}
               <h3
-                className="text-xl font-semibold text-[#EDEFF3] mb-2"
+                className="text-xl font-semibold text-gray-900 mb-2"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 {plan.name}
               </h3>
-              <p className="text-[#9096A6] text-sm leading-relaxed mb-6 min-h-[3.5rem]">{plan.description}</p>
+              <p className="text-gray-500 text-sm leading-relaxed mb-6 min-h-[3.5rem]">{plan.description}</p>
 
-              {/* Precio estilo factura */}
-              <div className="mb-6 pb-6 border-b border-white/10">
+              {/* Precio */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
                 <div className="flex items-baseline gap-1.5">
                   <span
-                    className="text-3xl md:text-4xl font-semibold text-[#EDEFF3]"
+                    className="text-3xl md:text-4xl font-semibold text-gray-900"
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
                     ${plan.price}
                   </span>
-                  <span className="text-[#9096A6] text-sm">MXN</span>
+                  <span className="text-gray-400 text-sm">MXN</span>
                 </div>
-                <p className="text-[#9096A6]/70 text-xs mt-1">{plan.period}</p>
+                <p className="text-gray-400 text-xs mt-1">{plan.period}</p>
               </div>
 
               {/* Lista de partidas */}
               <ul className="space-y-2.5 mb-8 flex-1">
                 {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[#9096A6] text-sm group-hover:text-[#c3c8d4] transition-colors duration-300">
+                  <li key={i} className="flex items-start gap-2.5 text-gray-600 text-sm group-hover:text-gray-800 transition-colors duration-300">
                     <span
-                      className={`mt-0.5 flex-shrink-0 ${plan.popular ? 'text-[#D4A657]' : 'text-white/30'}`}
+                      className={`mt-0.5 flex-shrink-0 ${plan.popular ? 'text-cyan-500' : 'text-gray-300'}`}
                       style={{ fontFamily: "'JetBrains Mono', monospace" }}
                     >
                       &gt;
@@ -363,26 +362,25 @@ const ServicioWebPricing = () => {
               </ul>
 
               {/* Botón */}
-             {/* Botón - WhatsApp con mensaje personalizado */}
-<button
-  onClick={() => {
-    const phoneNumber = '528144384806'; // Número de WhatsApp (formato: código país + número)
-    const message = `Hola, estoy interesado en el plan "${plan.name}" ($${plan.price} MXN) para mi proyecto web. Me gustaría recibir más información.`;
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
-  }}
-  className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-md font-medium transition-all duration-300 mt-auto text-sm
-    ${
-      plan.popular
-        ? 'bg-[#D4A657] text-[#0B0E14] hover:bg-[#e0b874]'
-        : 'bg-transparent border border-white/20 text-[#EDEFF3] hover:border-[#D4A657]/50 hover:text-[#D4A657]'
-    }`}
->
-  Elegir plan
-  <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-  </svg>
-</button>
+              <button
+                onClick={() => {
+                  const phoneNumber = '528144384806';
+                  const message = `Hola, estoy interesado en el plan "${plan.name}" ($${plan.price} MXN) para mi proyecto web. Me gustaría recibir más información.`;
+                  const encodedMessage = encodeURIComponent(message);
+                  window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+                }}
+                className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-md font-medium transition-all duration-300 mt-auto text-sm
+                  ${
+                    plan.popular
+                      ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white hover:from-cyan-600 hover:to-cyan-700 shadow-lg shadow-cyan-500/30'
+                      : 'bg-transparent border border-gray-300 text-gray-700 hover:border-cyan-400 hover:text-cyan-600'
+                  }`}
+              >
+                Elegir plan
+                <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </button>
             </Reveal>
           ))}
         </div>
@@ -390,38 +388,38 @@ const ServicioWebPricing = () => {
         {/* Servicios adicionales */}
         <div className="mt-20 md:mt-24">
           <Reveal className="text-center mb-10 md:mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-white/15 mb-5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#9096A6]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-gray-200 mb-5">
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
               <span
-                className="text-[11px] text-[#9096A6] tracking-[0.2em] uppercase"
+                className="text-[11px] text-gray-500 tracking-[0.2em] uppercase"
                 style={{ fontFamily: "'JetBrains Mono', monospace" }}
               >
                 Anexo de servicios
               </span>
             </div>
             <h3
-              className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#EDEFF3] mb-3"
+              className="text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-900 mb-3"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Amplía tu proyecto con servicios extra
             </h3>
-            <p className="text-[#9096A6] text-base max-w-2xl mx-auto">
+            <p className="text-gray-500 text-base max-w-2xl mx-auto">
               Agrega funcionalidades avanzadas a cualquiera de los paquetes anteriores.
             </p>
           </Reveal>
 
-          {/* Ledger de servicios: nombre ... línea punteada ... precio */}
-          <Reveal className="bg-[#12161F] rounded-lg border border-white/10 p-6 md:p-10">
+          {/* Ledger de servicios */}
+          <Reveal className="bg-gray-50 rounded-lg border border-gray-200 p-6 md:p-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
               {extraServices.map((service, index) => (
                 <div
                   key={index}
-                  className="flex items-baseline gap-2 py-2.5 border-b border-white/[0.06] last:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0"
+                  className="flex items-baseline gap-2 py-2.5 border-b border-gray-200 last:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0"
                 >
-                  <span className="text-[#c3c8d4] text-sm whitespace-nowrap">{service.name}</span>
-                  <span className="flex-1 border-b border-dotted border-white/15 translate-y-[-3px]" />
+                  <span className="text-gray-700 text-sm whitespace-nowrap">{service.name}</span>
+                  <span className="flex-1 border-b border-dotted border-gray-300 translate-y-[-3px]" />
                   <span
-                    className="text-[#D4A657] text-sm whitespace-nowrap"
+                    className="text-cyan-600 text-sm whitespace-nowrap"
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
                     {service.price}
@@ -431,7 +429,7 @@ const ServicioWebPricing = () => {
             </div>
           </Reveal>
 
-          <p className="text-center text-[#9096A6]/60 text-xs mt-5">
+          <p className="text-center text-gray-400 text-xs mt-5">
             * Los precios son referenciales y pueden variar según la complejidad del proyecto. Cotiza tu proyecto personalizado.
           </p>
         </div>

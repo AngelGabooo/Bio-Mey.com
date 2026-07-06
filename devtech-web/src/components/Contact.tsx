@@ -10,6 +10,12 @@ const EMAILJS_CONFIG = {
   TEMPLATE_ID: 'template_kd0vifi',
 };
 
+// ── CONFIGURACIÓN DE LÍMITE ──
+const LIMITE_CONFIG = {
+  MAX_ENVIOS: 1, // 1 envío
+  PERIODO_HORAS: 24, // cada 24 horas
+};
+
 interface SelectOption {
   value: string;
   label: string;
@@ -25,10 +31,7 @@ interface CustomSelectProps {
 }
 
 /**
- * Dropdown personalizado (reemplaza el <select> nativo del navegador).
- * Mismo look & feel y misma animación de apertura/cierre que el usado
- * en la sección de precios: panel oscuro con blur, opciones centradas
- * y check en la opción activa.
+ * Dropdown personalizado - Versión clara
  */
 const CustomSelect = ({ label, placeholder, value, options, onChange, disabled }: CustomSelectProps) => {
   const [open, setOpen] = useState(false);
@@ -46,22 +49,22 @@ const CustomSelect = ({ label, placeholder, value, options, onChange, disabled }
 
   return (
     <div ref={wrapperRef} className="relative">
-      <label className="block text-blue-200/60 text-sm mb-1.5">{label}</label>
+      <label className="block text-gray-500 text-sm mb-1.5">{label}</label>
       <button
         type="button"
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl bg-white/5 border text-left transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
-          open ? 'border-blue-400/50' : 'border-white/10 hover:border-white/20'
+        className={`w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl bg-white border text-left transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+          open ? 'border-cyan-400' : 'border-gray-200 hover:border-cyan-300'
         }`}
       >
-        <span className={`text-sm truncate ${selected ? 'text-white' : 'text-blue-200/30'}`}>
+        <span className={`text-sm truncate ${selected ? 'text-gray-900' : 'text-gray-400'}`}>
           {selected ? selected.label : placeholder}
         </span>
         <svg
-          className={`flex-shrink-0 w-4 h-4 text-blue-300/60 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          className={`flex-shrink-0 w-4 h-4 text-gray-400 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -72,7 +75,7 @@ const CustomSelect = ({ label, placeholder, value, options, onChange, disabled }
 
       <div
         role="listbox"
-        className={`absolute left-0 right-0 z-30 mt-2 origin-top rounded-xl border border-white/10 bg-[#12121f] backdrop-blur-xl shadow-xl shadow-black/40 overflow-hidden py-1.5 transition-all duration-200 ${
+        className={`absolute left-0 right-0 z-30 mt-2 origin-top rounded-xl border border-gray-200 bg-white shadow-xl shadow-black/5 overflow-hidden py-1.5 transition-all duration-200 ${
           open ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'
         }`}
       >
@@ -88,13 +91,13 @@ const CustomSelect = ({ label, placeholder, value, options, onChange, disabled }
             }}
             className={`relative w-full flex items-center justify-center px-8 py-2.5 text-sm transition-colors duration-150 ${
               value === opt.value
-                ? 'bg-blue-500/10 text-blue-300 font-medium'
-                : 'text-blue-100/75 hover:bg-white/[0.05] hover:text-white'
+                ? 'bg-cyan-50 text-cyan-600 font-medium'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             }`}
           >
             <span className="text-center">{opt.label}</span>
             {value === opt.value && (
-              <svg className="absolute right-3 w-3.5 h-3.5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute right-3 w-3.5 h-3.5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             )}
@@ -142,6 +145,70 @@ const Contact = () => {
   } | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
+  // ── FUNCIONES DE LÍMITE DE ENVÍOS ──
+  const getLimiteKey = () => 'biomey_contact_limite';
+
+  const getLimiteData = () => {
+    try {
+      const stored = localStorage.getItem(getLimiteKey());
+      if (stored) {
+        const data = JSON.parse(stored);
+        // Verificar si el formato es válido
+        if (data && typeof data.conteo === 'number' && data.fechaInicio) {
+          return data;
+        }
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  const guardarLimiteData = (conteo: number) => {
+    const data = {
+      conteo: conteo,
+      fechaInicio: new Date().toISOString(),
+    };
+    localStorage.setItem(getLimiteKey(), JSON.stringify(data));
+  };
+
+  const resetearLimite = () => {
+    localStorage.removeItem(getLimiteKey());
+  };
+
+  const puedeEnviar = (): { permitido: boolean; mensaje?: string; tiempoRestante?: string } => {
+    const limiteData = getLimiteData();
+
+    // Si no hay datos guardados, permitir envío
+    if (!limiteData) {
+      return { permitido: true };
+    }
+
+    const ahora = new Date();
+    const fechaInicio = new Date(limiteData.fechaInicio);
+    const horasPasadas = (ahora.getTime() - fechaInicio.getTime()) / (1000 * 60 * 60);
+
+    // Si pasaron más de 24 horas, resetear y permitir
+    if (horasPasadas >= LIMITE_CONFIG.PERIODO_HORAS) {
+      resetearLimite();
+      return { permitido: true };
+    }
+
+    // Si ya envió el máximo permitido
+    if (limiteData.conteo >= LIMITE_CONFIG.MAX_ENVIOS) {
+      const horasRestantes = Math.ceil(LIMITE_CONFIG.PERIODO_HORAS - horasPasadas);
+      return {
+        permitido: false,
+        mensaje: `Has alcanzado el límite de ${LIMITE_CONFIG.MAX_ENVIOS} mensaje por día.`,
+        tiempoRestante: `Puedes enviar otro mensaje en ${horasRestantes} horas.`,
+      };
+    }
+
+    return { permitido: true };
+  };
+
+  // ── FIN FUNCIONES DE LÍMITE ──
+
   // Descripción de cada plan
   const planDescriptions: Record<string, string> = {
     'Landing Page': '✅ Página de una sola vista perfecta para campañas\n✅ Diseño profesional y moderno\n✅ Adaptable a todos los dispositivos\n✅ Botón directo a WhatsApp\n✅ Formulario de contacto\n✅ SEO básico\n✅ Entrega en 5 días\n✅ 1 ronda de cambios',
@@ -178,6 +245,18 @@ const Contact = () => {
   // Enviar formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ── VERIFICAR LÍMITE DE ENVÍOS ──
+    const limite = puedeEnviar();
+    if (!limite.permitido) {
+      setSubmitStatus({
+        success: false,
+        message: `${limite.mensaje} ${limite.tiempoRestante || ''}`,
+      });
+      return;
+    }
+    // ── FIN VERIFICACIÓN ──
+
     setIsSubmitting(true);
     setSubmitStatus(null);
     try {
@@ -215,6 +294,15 @@ ${formData.message}
         }
       );
       if (result.text === 'OK') {
+        // ── GUARDAR LÍMITE DE ENVÍO ──
+        const limiteData = getLimiteData();
+        if (limiteData) {
+          guardarLimiteData(limiteData.conteo + 1);
+        } else {
+          guardarLimiteData(1);
+        }
+        // ── FIN GUARDAR LÍMITE ──
+
         setSubmitStatus({
           success: true,
           message: `¡Mensaje enviado con éxito! ${
@@ -253,7 +341,7 @@ ${formData.message}
         </svg>
       ),
       label: 'Teléfono',
-      value: '+52 961 123 4567'
+      value: '+52 81 4438 4806'
     },
     {
       icon: (
@@ -262,7 +350,7 @@ ${formData.message}
         </svg>
       ),
       label: 'Correo',
-      value: 'contacto@devtech.com'
+      value: 'a20624646@gmail.com'
     },
     {
       icon: (
@@ -281,7 +369,7 @@ ${formData.message}
         </svg>
       ),
       label: 'Horario',
-      value: 'Lunes a Viernes 9:00 AM - 6:00 PM'
+      value: 'Lunes a Domingo 9:00 AM - 10:00 PM'
     },
     {
       icon: (
@@ -290,7 +378,7 @@ ${formData.message}
         </svg>
       ),
       label: 'WhatsApp',
-      value: '+52 961 123 4567'
+      value: '+52 81 4438 4806'
     }
   ];
 
@@ -311,10 +399,10 @@ ${formData.message}
   ];
 
   return (
-    <section className="relative py-16 md:py-24 bg-[#0a0a14] overflow-hidden" id="contacto">
-      {/* Glow de fondo */}
+    <section className="relative py-16 md:py-24 bg-white overflow-hidden" id="contacto">
+      {/* Glow de fondo - Cian suave */}
       <div className="absolute inset-0 flex items-center justify-center -z-10">
-        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
       <div className="container-custom relative z-10 max-w-6xl mx-auto">
         {/* Encabezado */}
@@ -323,43 +411,43 @@ ${formData.message}
           data-aos="fade-up"
           data-aos-duration="600"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/20 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-            <span className="text-[10px] md:text-xs font-medium text-blue-300 tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-cyan-300 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span className="text-[10px] md:text-xs font-medium text-cyan-600 tracking-wider uppercase">
               Contacto
             </span>
           </div>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            Hablemos de tu <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">proyecto</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4">
+            Hablemos de tu <span className="text-cyan-500">proyecto</span>
           </h2>
-          <p className="text-blue-200/60 text-base md:text-lg max-w-2xl mx-auto">
+          <p className="text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
             {planInfo
               ? `Estás interesado en el plan "${planInfo.name}". Cuéntanos más sobre tu proyecto.`
               : 'Cuéntanos sobre tu idea y te ayudaremos a hacerla realidad.'
             }
           </p>
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mt-4 rounded-full"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-cyan-500 mx-auto mt-4 rounded-full"></div>
         </div>
 
         {/* Plan seleccionado */}
         {planInfo && (
           <div
-            className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-400/20"
+            className="mb-8 p-6 rounded-2xl bg-cyan-50 border border-cyan-200"
             data-aos="fade-up"
             data-aos-duration="600"
           >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <h3 className="text-xl font-bold text-white">
-                  📌 Plan seleccionado: <span className="text-blue-300">{planInfo.name}</span>
+                <h3 className="text-xl font-bold text-gray-900">
+                  📌 Plan seleccionado: <span className="text-cyan-600">{planInfo.name}</span>
                 </h3>
-                <p className="text-blue-200/60 text-sm mt-1">
-                  Precio: <span className="text-white font-semibold">${planInfo.price} MXN</span>
+                <p className="text-gray-500 text-sm mt-1">
+                  Precio: <span className="text-gray-900 font-semibold">${planInfo.price} MXN</span>
                 </p>
               </div>
               <div className="flex gap-2">
-                <span className="px-3 py-1 text-xs rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/20">
+                <span className="px-3 py-1 text-xs rounded-full bg-cyan-100 text-cyan-700 border border-cyan-200">
                   Plan elegido
                 </span>
                 <button
@@ -367,15 +455,15 @@ ${formData.message}
                     setSelectedPlan(null);
                     window.history.replaceState({}, '', window.location.pathname);
                   }}
-                  className="px-3 py-1 text-xs rounded-full bg-white/5 text-blue-200/50 hover:text-white hover:bg-white/10 border border-white/10 transition-all duration-300"
+                  className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-200 border border-gray-200 transition-all duration-300"
                 >
                   Cambiar plan
                 </button>
               </div>
             </div>
 
-            <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/5">
-              <p className="text-blue-200/60 text-sm whitespace-pre-wrap">
+            <div className="mt-4 p-4 rounded-xl bg-white border border-gray-200">
+              <p className="text-gray-600 text-sm whitespace-pre-wrap">
                 {planInfo.description}
               </p>
             </div>
@@ -389,25 +477,25 @@ ${formData.message}
             data-aos="fade-right"
             data-aos-duration="600"
           >
-            <h3 className="text-xl font-bold text-white mb-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
               Información de contacto
             </h3>
             {contactInfo.map((info, index) => (
               <div
                 key={index}
-                className="flex items-start gap-4 p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-blue-400/30 transition-all duration-300 group"
+                className="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-200 hover:border-cyan-300 transition-all duration-300 group"
                 data-aos="fade-up"
                 data-aos-delay={index * 50}
                 data-aos-duration="500"
               >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-600/20 to-purple-600/20 flex items-center justify-center text-blue-400 group-hover:text-blue-300 transition-colors duration-300 flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center text-cyan-500 group-hover:text-cyan-600 transition-colors duration-300 flex-shrink-0">
                   {info.icon}
                 </div>
                 <div>
-                  <p className="text-blue-200/50 text-xs uppercase tracking-wider">
+                  <p className="text-gray-400 text-xs uppercase tracking-wider">
                     {info.label}
                   </p>
-                  <p className="text-white text-sm md:text-base font-medium">
+                  <p className="text-gray-900 text-sm md:text-base font-medium">
                     {info.value}
                   </p>
                 </div>
@@ -421,16 +509,16 @@ ${formData.message}
             data-aos="fade-left"
             data-aos-duration="600"
           >
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white/10">
-              <h3 className="text-xl font-bold text-white mb-6">
+            <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-sm">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
                 Envíanos un mensaje
               </h3>
 
               {submitStatus && (
                 <div className={`mb-4 p-4 rounded-xl ${
                   submitStatus.success
-                    ? 'bg-green-500/20 border border-green-500/30 text-green-300'
-                    : 'bg-red-500/20 border border-red-500/30 text-red-300'
+                    ? 'bg-green-50 border border-green-200 text-green-700'
+                    : 'bg-red-50 border border-red-200 text-red-700'
                 }`}>
                   {submitStatus.message}
                 </div>
@@ -439,7 +527,7 @@ ${formData.message}
               <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-blue-200/60 text-sm mb-1.5">
+                    <label className="block text-gray-500 text-sm mb-1.5">
                       Nombre completo *
                     </label>
                     <input
@@ -450,11 +538,11 @@ ${formData.message}
                       placeholder="Tu nombre"
                       required
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 disabled:opacity-50"
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-cyan-400 focus:outline-none transition-colors duration-300 disabled:opacity-50"
                     />
                   </div>
                   <div>
-                    <label className="block text-blue-200/60 text-sm mb-1.5">
+                    <label className="block text-gray-500 text-sm mb-1.5">
                       Correo electrónico *
                     </label>
                     <input
@@ -465,14 +553,14 @@ ${formData.message}
                       placeholder="tu@email.com"
                       required
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 disabled:opacity-50"
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-cyan-400 focus:outline-none transition-colors duration-300 disabled:opacity-50"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-blue-200/60 text-sm mb-1.5">
+                    <label className="block text-gray-500 text-sm mb-1.5">
                       Teléfono
                     </label>
                     <input
@@ -482,11 +570,11 @@ ${formData.message}
                       onChange={handleChange}
                       placeholder="961 123 4567"
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 disabled:opacity-50"
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-cyan-400 focus:outline-none transition-colors duration-300 disabled:opacity-50"
                     />
                   </div>
                   <div>
-                    <label className="block text-blue-200/60 text-sm mb-1.5">
+                    <label className="block text-gray-500 text-sm mb-1.5">
                       Empresa
                     </label>
                     <input
@@ -496,7 +584,7 @@ ${formData.message}
                       onChange={handleChange}
                       placeholder="Nombre de tu empresa"
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 disabled:opacity-50"
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-cyan-400 focus:outline-none transition-colors duration-300 disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -521,7 +609,7 @@ ${formData.message}
                 </div>
 
                 <div>
-                  <label className="block text-blue-200/60 text-sm mb-1.5">
+                  <label className="block text-gray-500 text-sm mb-1.5">
                     Cuéntanos sobre tu proyecto *
                   </label>
                   <textarea
@@ -535,14 +623,14 @@ ${formData.message}
                     }
                     required
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-blue-400/50 focus:outline-none transition-colors duration-300 resize-none disabled:opacity-50"
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-cyan-400 focus:outline-none transition-colors duration-300 resize-none disabled:opacity-50"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full px-8 py-4 text-white font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02] transform flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-full px-8 py-4 text-white font-semibold rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-[1.02] transform flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {isSubmitting ? (
                     <>
@@ -561,6 +649,14 @@ ${formData.message}
                     </>
                   )}
                 </button>
+
+                {/* Indicador de límite */}
+                <div className="flex items-center gap-2 text-xs text-gray-400 mt-4">
+                  <svg className="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span>Límite de {LIMITE_CONFIG.MAX_ENVIOS} mensaje cada {LIMITE_CONFIG.PERIODO_HORAS} horas</span>
+                </div>
               </form>
             </div>
           </div>

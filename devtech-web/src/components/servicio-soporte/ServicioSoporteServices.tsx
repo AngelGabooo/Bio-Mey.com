@@ -91,27 +91,27 @@ const ServicioSoporteServices = () => {
 
   const ServiceRow = ({ service, index, delay }) => (
     <div
-      className="group flex items-center gap-4 px-5 sm:px-6 py-4 hover:bg-white/[0.03] transition-colors duration-300"
+      className="group flex items-center gap-4 px-5 sm:px-6 py-4 hover:bg-gray-50 transition-colors duration-300"
       data-aos="fade-up"
       data-aos-delay={delay}
       data-aos-duration="450"
     >
-      <span className="w-6 flex-shrink-0 text-[11px] font-mono text-blue-400/30 group-hover:text-blue-400/70 transition-colors duration-300">
+      <span className="w-6 flex-shrink-0 text-[11px] font-mono text-cyan-300 group-hover:text-cyan-500 transition-colors duration-300">
         {String(index + 1).padStart(2, '0')}
       </span>
-      <div className="w-10 h-10 rounded-lg border border-blue-400/20 bg-white/[0.03] flex items-center justify-center text-blue-300/80 flex-shrink-0 group-hover:border-blue-400/40 group-hover:text-blue-200 transition-all duration-300">
+      <div className="w-10 h-10 rounded-lg border border-cyan-300 bg-white flex items-center justify-center text-cyan-500 flex-shrink-0 group-hover:border-cyan-400 group-hover:text-cyan-600 transition-all duration-300">
         {service.icon}
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="text-white text-sm font-semibold group-hover:text-blue-300 transition-colors duration-300">
+        <h3 className="text-gray-900 text-sm font-semibold group-hover:text-cyan-600 transition-colors duration-300">
           {service.title}
         </h3>
-        <p className="text-blue-200/45 text-[12.5px] leading-relaxed mt-0.5">
+        <p className="text-gray-500 text-[12.5px] leading-relaxed mt-0.5">
           {service.description}
         </p>
       </div>
       <svg
-        className="w-4 h-4 text-blue-400/0 group-hover:text-blue-400/70 -translate-x-1 group-hover:translate-x-0 transition-all duration-300 flex-shrink-0 hidden sm:block"
+        className="w-4 h-4 text-cyan-300/0 group-hover:text-cyan-400/70 -translate-x-1 group-hover:translate-x-0 transition-all duration-300 flex-shrink-0 hidden sm:block"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -122,9 +122,9 @@ const ServicioSoporteServices = () => {
   );
 
   return (
-    <section className="relative py-10 md:py-16 bg-[#0a0a14] overflow-hidden">
+    <section className="relative py-10 md:py-16 bg-white overflow-hidden">
       <div className="absolute inset-0 flex items-center justify-center -z-10">
-        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container-custom relative z-10 max-w-6xl mx-auto px-5">
@@ -134,19 +134,17 @@ const ServicioSoporteServices = () => {
           data-aos="fade-up"
           data-aos-duration="600"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/20 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-            <span className="text-[10px] md:text-xs font-medium text-blue-300 tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-cyan-300 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span className="text-[10px] md:text-xs font-medium text-cyan-600 tracking-wider uppercase">
               Servicios
             </span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">
             Servicios de{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              soporte técnico
-            </span>
+            <span className="text-cyan-500">soporte técnico</span>
           </h2>
-          <p className="text-blue-200/60 text-sm md:text-base max-w-2xl mx-auto">
+          <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
             Soluciones efectivas para cualquier tipo de inconveniente técnico.
           </p>
         </div>
@@ -154,7 +152,7 @@ const ServicioSoporteServices = () => {
         {/* Lista de servicios en dos columnas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-6">
           <div
-            className="rounded-2xl border border-white/10 bg-white/[0.02] divide-y divide-white/[0.06] overflow-hidden"
+            className="rounded-2xl border border-gray-200 bg-white divide-y divide-gray-100 overflow-hidden"
             data-aos="fade-right"
             data-aos-duration="600"
           >
@@ -163,7 +161,7 @@ const ServicioSoporteServices = () => {
             ))}
           </div>
           <div
-            className="rounded-2xl border border-white/10 bg-white/[0.02] divide-y divide-white/[0.06] overflow-hidden"
+            className="rounded-2xl border border-gray-200 bg-white divide-y divide-gray-100 overflow-hidden"
             data-aos="fade-left"
             data-aos-duration="600"
           >

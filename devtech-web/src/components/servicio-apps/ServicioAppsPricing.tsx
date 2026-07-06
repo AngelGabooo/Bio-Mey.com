@@ -4,20 +4,14 @@ import emailjs from '@emailjs/browser';
 /**
  * ─────────────────────────────────────────────────────────────
  * CONFIGURA AQUÍ TUS CLAVES DE EMAILJS
- * (Dashboard → Email Services / Email Templates / Account → API Keys)
  * ─────────────────────────────────────────────────────────────
  */
 const EMAILJS_SERVICE_ID = 'service_nmcqlce';
 const EMAILJS_TEMPLATE_ID = 'template_kd0vifi';
 const EMAILJS_PUBLIC_KEY = '9o1-iq4oNrAxy0XDo';
 
-
-
 /**
- * Dropdown personalizado (reemplaza el <select> nativo del navegador).
- * Mantiene el mismo estilo "glass" que el resto de la sección y permite
- * controlar por completo el diseño del menú, algo que un <select> nativo
- * no permite entre navegadores.
+ * Dropdown personalizado - Versión clara
  */
 const CustomSelect = ({ icon, label, placeholder, value, options, onChange, disabled }) => {
   const [open, setOpen] = useState(false);
@@ -41,19 +35,19 @@ const CustomSelect = ({ icon, label, placeholder, value, options, onChange, disa
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`w-full flex items-center gap-3 p-3.5 rounded-xl border bg-white/[0.02] transition-colors duration-300 text-left disabled:opacity-50 disabled:cursor-not-allowed ${
-          open ? 'border-blue-400/40' : 'border-white/10 hover:border-white/20'
+        className={`w-full flex items-center gap-3 p-3.5 rounded-xl border bg-white transition-colors duration-300 text-left disabled:opacity-50 disabled:cursor-not-allowed ${
+          open ? 'border-cyan-400' : 'border-gray-200 hover:border-cyan-300'
         }`}
       >
-        <span className="flex-shrink-0 w-4 h-4 text-blue-300/70">{icon}</span>
+        <span className="flex-shrink-0 w-4 h-4 text-cyan-500">{icon}</span>
         <span className="flex-1 min-w-0">
-          <span className="block text-white text-[13px] font-semibold mb-0.5">{label}</span>
-          <span className={`block text-sm truncate ${selected ? 'text-white' : 'text-blue-200/30'}`}>
+          <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">{label}</span>
+          <span className={`block text-sm truncate ${selected ? 'text-gray-900' : 'text-gray-400'}`}>
             {selected ? selected.label : placeholder}
           </span>
         </span>
         <svg
-          className={`flex-shrink-0 w-4 h-4 text-blue-300/60 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          className={`flex-shrink-0 w-4 h-4 text-gray-400 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -64,7 +58,7 @@ const CustomSelect = ({ icon, label, placeholder, value, options, onChange, disa
 
       <div
         role="listbox"
-        className={`absolute left-0 right-0 z-30 mt-2 origin-top rounded-xl border border-white/10 bg-[#12121f] backdrop-blur-xl shadow-xl shadow-black/40 overflow-hidden py-1.5 transition-all duration-200 ${
+        className={`absolute left-0 right-0 z-30 mt-2 origin-top rounded-xl border border-gray-200 bg-white shadow-xl shadow-black/5 overflow-hidden py-1.5 transition-all duration-200 ${
           open ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'
         }`}
       >
@@ -80,13 +74,13 @@ const CustomSelect = ({ icon, label, placeholder, value, options, onChange, disa
             }}
             className={`relative w-full flex items-center justify-center px-8 py-2.5 text-sm transition-colors duration-150 ${
               value === opt.value
-                ? 'bg-blue-500/10 text-blue-300 font-medium'
-                : 'text-blue-100/75 hover:bg-white/[0.05] hover:text-white'
+                ? 'bg-cyan-50 text-cyan-600 font-medium'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             }`}
           >
             <span className="text-center">{opt.label}</span>
             {value === opt.value && (
-              <svg className="absolute right-3 w-3.5 h-3.5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute right-3 w-3.5 h-3.5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             )}
@@ -97,8 +91,7 @@ const CustomSelect = ({ icon, label, placeholder, value, options, onChange, disa
   );
 };
 
-// Opciones reutilizadas por los CustomSelect y por el envío a EmailJS
-// (así el correo muestra el texto legible, no el value interno como "restaurante")
+// Opciones reutilizadas
 const NEGOCIO_OPTIONS = [
   { value: 'restaurante', label: 'Restaurante' },
   { value: 'tienda', label: 'Tienda / E-commerce' },
@@ -123,7 +116,7 @@ const ServicioAppsPricing = () => {
     tipoApp: '',
     idea: '',
   });
-  const [status, setStatus] = useState('idle'); // idle | sending | success | error
+  const [status, setStatus] = useState('idle');
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -151,9 +144,6 @@ const ServicioAppsPricing = () => {
     }
     setStatus('sending');
 
-    // Convertimos los "value" internos (ej. "restaurante") al texto legible
-    // que se ve en el desplegable (ej. "Restaurante"), para que el correo
-    // llegue con texto claro en vez del código interno.
     const negocioLabel = NEGOCIO_OPTIONS.find((o) => o.value === form.tipoNegocio)?.label;
     const appLabel = APP_OPTIONS.find((o) => o.value === form.tipoApp)?.label;
 
@@ -162,7 +152,6 @@ const ServicioAppsPricing = () => {
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         {
-          // Estas claves deben coincidir exactamente con los {{...}} de tu plantilla
           from_name: form.nombre,
           from_email: form.correo,
           user_phone: form.telefono || 'No proporcionado',
@@ -301,17 +290,16 @@ const ServicioAppsPricing = () => {
   ];
 
   const inputBase =
-    'w-full bg-transparent border-none outline-none text-white text-sm placeholder:text-blue-200/30 p-0 disabled:opacity-50';
+    'w-full bg-transparent border-none outline-none text-gray-900 text-sm placeholder:text-gray-400 p-0 disabled:opacity-50';
 
-  // Estilo común para todas las cajas de íconos: fondo transparente, borde sutil, sin relleno sólido
   const iconBoxBase =
-    'flex-shrink-0 flex items-center justify-center rounded-xl border border-blue-400/25 bg-white/[0.03] backdrop-blur-sm text-blue-300 transition-all duration-300';
+    'flex-shrink-0 flex items-center justify-center rounded-xl border border-cyan-200 bg-white text-cyan-500 transition-all duration-300';
 
   return (
-    <section ref={sectionRef} className="relative py-16 md:py-24 bg-[#0a0a14] overflow-hidden" id="precios">
-      {/* Glow de fondo */}
+    <section ref={sectionRef} className="relative py-16 md:py-24 bg-white overflow-hidden" id="precios">
+      {/* Glow de fondo - Cian suave */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center -z-10">
-        <div className="w-[700px] h-[700px] md:w-[900px] md:h-[900px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="w-[700px] h-[700px] md:w-[900px] md:h-[900px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container-custom relative z-10 max-w-6xl mx-auto px-5">
@@ -321,20 +309,18 @@ const ServicioAppsPricing = () => {
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] backdrop-blur-sm border border-blue-400/20 mb-5">
-            <svg className="w-3.5 h-3.5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-cyan-300 mb-5">
+            <svg className="w-3.5 h-3.5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span className="text-xs font-medium text-blue-300 tracking-wide">Precios personalizados</span>
+            <span className="text-xs font-medium text-cyan-600 tracking-wide">Precios personalizados</span>
           </div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 leading-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
             Precios de aplicaciones{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              a la medida
-            </span>
+            <span className="text-cyan-500">a la medida</span>
           </h2>
-          <p className="text-blue-200/50 text-sm md:text-base max-w-2xl mx-auto">
+          <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
             Cada negocio es diferente, por eso desarrollamos aplicaciones personalizadas según tus necesidades y objetivos.
           </p>
         </div>
@@ -348,63 +334,61 @@ const ServicioAppsPricing = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group flex items-start gap-3 p-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] hover:border-blue-400/25 hover:bg-white/[0.03] transition-all duration-300"
+              className="group flex items-start gap-3 p-4 rounded-2xl border border-gray-200 bg-white hover:border-cyan-300 transition-all duration-300"
             >
-              <div className={`${iconBoxBase} w-10 h-10 group-hover:border-blue-400/50 group-hover:text-blue-200`}>
+              <div className={`${iconBoxBase} w-10 h-10 group-hover:border-cyan-400 group-hover:text-cyan-600`}>
                 {feature.icon}
               </div>
               <div>
-                <h3 className="text-white text-[13px] font-semibold leading-snug mb-1">{feature.title}</h3>
-                <p className="text-blue-200/45 text-[11.5px] leading-relaxed">{feature.description}</p>
+                <h3 className="text-gray-900 text-[13px] font-semibold leading-snug mb-1">{feature.title}</h3>
+                <p className="text-gray-500 text-[11.5px] leading-relaxed">{feature.description}</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Dos columnas: factores de precio + formulario */}
+        {/* Dos columnas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           {/* Columna izquierda */}
           <div
-            className={`relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 md:p-8 transition-all duration-700 delay-150 ${
+            className={`relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 md:p-8 transition-all duration-700 delay-150 ${
               visible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
             }`}
           >
-            <div className="pointer-events-none absolute -top-10 -right-10 w-52 h-52 bg-gradient-to-br from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
-            <h3 className="relative text-xl md:text-2xl font-bold text-white leading-snug mb-6">
+            <div className="pointer-events-none absolute -top-10 -right-10 w-52 h-52 bg-gradient-to-br from-cyan-100/40 to-cyan-200/20 rounded-full blur-3xl"></div>
+            <h3 className="relative text-xl md:text-2xl font-bold text-gray-900 leading-snug mb-6">
               ¿Qué influye en el precio{' '}
-              <span className="block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                de una aplicación?
-              </span>
+              <span className="block text-cyan-500">de una aplicación?</span>
             </h3>
             <div className="relative flex flex-col">
               {factors.map((factor, index) => (
                 <div
                   key={index}
                   className={`flex items-center gap-3.5 py-3.5 ${
-                    index !== factors.length - 1 ? 'border-b border-white/[0.06]' : ''
+                    index !== factors.length - 1 ? 'border-b border-gray-200' : ''
                   }`}
                 >
-                  <div className={`${iconBoxBase} w-9 h-9 text-blue-300/80`}>
+                  <div className={`${iconBoxBase} w-9 h-9 text-cyan-500`}>
                     {factorIcons[factor.icon]}
                   </div>
                   <div>
-                    <h4 className="text-white text-[13.5px] font-semibold">{factor.title}</h4>
-                    <p className="text-blue-200/40 text-[12px]">{factor.desc}</p>
+                    <h4 className="text-gray-900 text-[13.5px] font-semibold">{factor.title}</h4>
+                    <p className="text-gray-500 text-[12px]">{factor.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="relative flex items-start gap-3.5 mt-5 p-4 rounded-xl border border-purple-400/25 bg-purple-500/[0.05]">
-              <div className={`${iconBoxBase} w-10 h-10 border-purple-400/25 text-purple-300`}>
+            <div className="relative flex items-start gap-3.5 mt-5 p-4 rounded-xl border border-cyan-300 bg-cyan-50">
+              <div className={`${iconBoxBase} w-10 h-10 border-cyan-300 text-cyan-500`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div>
-                <h4 className="text-white text-[13.5px] font-semibold mb-0.5">
+                <h4 className="text-gray-900 text-[13.5px] font-semibold mb-0.5">
                   No te preocupes si aún no tienes todo claro
                 </h4>
-                <p className="text-blue-200/45 text-[12px] leading-relaxed">
+                <p className="text-gray-500 text-[12px] leading-relaxed">
                   Te ayudamos a definir tu proyecto y las mejores soluciones para tu negocio.
                 </p>
               </div>
@@ -413,20 +397,18 @@ const ServicioAppsPricing = () => {
 
           {/* Columna derecha - Formulario */}
           <div
-            className={`relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 md:p-8 transition-all duration-700 delay-200 ${
+            className={`relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 md:p-8 transition-all duration-700 delay-200 ${
               visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
             }`}
           >
-            <div className="pointer-events-none absolute -top-6 -right-6 w-40 h-40 bg-gradient-to-br from-blue-600/15 to-purple-600/15 rounded-full blur-3xl"></div>
+            <div className="pointer-events-none absolute -top-6 -right-6 w-40 h-40 bg-gradient-to-br from-cyan-100/40 to-cyan-200/20 rounded-full blur-3xl"></div>
             <div className="relative flex items-start justify-between gap-4 mb-6">
-              <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900 leading-snug">
                 Cuéntanos tu idea y te enviamos una{' '}
-                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  cotización personalizada
-                </span>
+                <span className="text-cyan-500">cotización personalizada</span>
               </h3>
               <svg
-                className="hidden sm:block flex-shrink-0 w-14 h-14 text-purple-400/70"
+                className="hidden sm:block flex-shrink-0 w-14 h-14 text-cyan-400/70"
                 viewBox="0 0 64 64"
                 fill="none"
               >
@@ -443,12 +425,12 @@ const ServicioAppsPricing = () => {
 
             <form onSubmit={handleSubmit} className="relative flex flex-col gap-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] focus-within:border-blue-400/40 transition-colors duration-300">
-                  <svg className="w-4 h-4 mt-0.5 text-blue-300/70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
+                  <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   <span className="flex-1">
-                    <span className="block text-white text-[13px] font-semibold mb-0.5">Nombre completo</span>
+                    <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">Nombre completo</span>
                     <input
                       type="text"
                       value={form.nombre}
@@ -460,12 +442,12 @@ const ServicioAppsPricing = () => {
                     />
                   </span>
                 </label>
-                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] focus-within:border-blue-400/40 transition-colors duration-300">
-                  <svg className="w-4 h-4 mt-0.5 text-blue-300/70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
+                  <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   <span className="flex-1">
-                    <span className="block text-white text-[13px] font-semibold mb-0.5">Correo electrónico</span>
+                    <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">Correo electrónico</span>
                     <input
                       type="email"
                       value={form.correo}
@@ -480,12 +462,12 @@ const ServicioAppsPricing = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] focus-within:border-blue-400/40 transition-colors duration-300">
-                  <svg className="w-4 h-4 mt-0.5 text-blue-300/70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
+                  <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                   <span className="flex-1">
-                    <span className="block text-white text-[13px] font-semibold mb-0.5">WhatsApp / Teléfono</span>
+                    <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">WhatsApp / Teléfono</span>
                     <input
                       type="tel"
                       value={form.telefono}
@@ -525,12 +507,12 @@ const ServicioAppsPricing = () => {
                 options={APP_OPTIONS}
               />
 
-              <label className="flex items-start gap-3 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] focus-within:border-blue-400/40 transition-colors duration-300">
-                <svg className="w-4 h-4 mt-0.5 text-blue-300/70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
+                <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5" />
                 </svg>
                 <span className="flex-1">
-                  <span className="block text-white text-[13px] font-semibold mb-0.5">Cuéntanos tu idea</span>
+                  <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">Cuéntanos tu idea</span>
                   <textarea
                     value={form.idea}
                     onChange={handleChange('idea')}
@@ -545,7 +527,7 @@ const ServicioAppsPricing = () => {
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                className="mt-1 w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-white text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                className="mt-1 w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-white text-sm font-semibold bg-gradient-to-r from-cyan-500 to-cyan-600 hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none"
               >
                 {status === 'sending' ? (
                   <>
@@ -565,9 +547,8 @@ const ServicioAppsPricing = () => {
                 )}
               </button>
 
-              {/* Mensajes de estado */}
               {status === 'success' && (
-                <div className="flex items-center gap-2 text-emerald-300 text-[12.5px] bg-emerald-400/[0.06] border border-emerald-400/20 rounded-lg px-3 py-2.5">
+                <div className="flex items-center gap-2 text-emerald-600 text-[12.5px] bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5">
                   <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -575,7 +556,7 @@ const ServicioAppsPricing = () => {
                 </div>
               )}
               {status === 'error' && (
-                <div className="flex items-center gap-2 text-red-300 text-[12.5px] bg-red-400/[0.06] border border-red-400/20 rounded-lg px-3 py-2.5">
+                <div className="flex items-center gap-2 text-red-600 text-[12.5px] bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">
                   <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-8.999 3h.008v.008h-.008V15z" />
                   </svg>
@@ -583,7 +564,7 @@ const ServicioAppsPricing = () => {
                 </div>
               )}
 
-              <p className="flex items-center justify-center gap-1.5 text-blue-200/35 text-[11px] mt-1">
+              <p className="flex items-center justify-center gap-1.5 text-gray-400 text-[11px] mt-1">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
@@ -595,20 +576,20 @@ const ServicioAppsPricing = () => {
 
         {/* Garantías */}
         <div
-          className={`relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 md:p-7 mb-10 transition-all duration-700 delay-300 ${
+          className={`relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 md:p-7 mb-10 transition-all duration-700 delay-300 ${
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
-          <div className="pointer-events-none absolute -bottom-8 -right-8 w-40 h-40 bg-gradient-to-br from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+          <div className="pointer-events-none absolute -bottom-8 -right-8 w-40 h-40 bg-gradient-to-br from-cyan-100/40 to-cyan-200/20 rounded-full blur-3xl"></div>
           <div className="relative grid grid-cols-2 lg:grid-cols-4 gap-6">
             {guarantees.map((item, index) => (
               <div key={index} className="flex items-start gap-3">
-                <div className={`${iconBoxBase} w-10 h-10 text-blue-300/80`}>
+                <div className={`${iconBoxBase} w-10 h-10 text-cyan-500`}>
                   {item.icon}
                 </div>
                 <div>
-                  <h4 className="text-white text-[13px] font-semibold leading-snug">{item.title}</h4>
-                  <p className="text-blue-200/40 text-[11.5px]">{item.description}</p>
+                  <h4 className="text-gray-900 text-[13px] font-semibold leading-snug">{item.title}</h4>
+                  <p className="text-gray-500 text-[11.5px]">{item.description}</p>
                 </div>
               </div>
             ))}
@@ -621,10 +602,10 @@ const ServicioAppsPricing = () => {
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
-          <svg className="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" />
           </svg>
-          <p className="text-blue-200/60 text-sm md:text-base">
+          <p className="text-gray-500 text-sm md:text-base">
             Desarrollamos aplicaciones que impulsan tu negocio al siguiente nivel.
           </p>
         </div>

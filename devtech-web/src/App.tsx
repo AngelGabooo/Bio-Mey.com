@@ -8,7 +8,11 @@ import ServicioMantenimiento from './pages/ServicioMantenimiento';
 import ServicioSoporte from './pages/ServicioSoporte';
 import ServicioSoftware from './pages/ServicioSoftware';
 import ServicioEnConstruccion from './pages/ServicioEnConstruccion';
+import Technologies from './pages/Technologies';
+import Nosotros from './pages/Nosotros';
 import WhatsAppButton from './components/WhatsAppButton';
+import AvisoPrivacidad from './pages/AvisoPrivacidad';
+import TerminosCondiciones from './pages/TerminosCondiciones';
 
 // Componente para trackear cambios de ruta
 function RouteTracker() {
@@ -35,15 +39,24 @@ function App() {
       <WhatsAppButton />
       <Routes>
         <Route path="/" element={<Home />} />
+        
+        {/* Servicios activos */}
         <Route path="/servicios/desarrollo-web" element={<ServicioWeb />} />
         <Route path="/servicios/aplicaciones-moviles" element={<ServicioApps />} />
         <Route path="/servicios/mantenimiento-pc" element={<ServicioMantenimiento />} />
         <Route path="/servicios/soporte-tecnico" element={<ServicioSoporte />} />
         <Route path="/servicios/instalacion-software" element={<ServicioSoftware />} />
+        
         {/* Servicios en construcción */}
-        <Route path="/servicios/formateo-celulares" element={<ServicioEnConstruccion />} />
+        <Route path="/servicios/formateo-flasheo" element={<ServicioEnConstruccion />} />
         <Route path="/servicios/asesoria-it" element={<ServicioEnConstruccion />} />
         <Route path="/servicios/tramites-digitales" element={<ServicioEnConstruccion />} />
+        
+        {/* Páginas adicionales */}
+        <Route path="/tecnologias" element={<Technologies />} />
+        <Route path="/nosotros" element={<Nosotros />} />
+        <Route path="/aviso-privacidad" element={<AvisoPrivacidad />} />
+        <Route path="/terminos-condiciones" element={<TerminosCondiciones />} />
       </Routes>
     </Router>
   );

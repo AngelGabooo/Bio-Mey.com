@@ -39,10 +39,10 @@ const ServicioMantenimientoBrands = () => {
   const duplicatedBrands = [...brands, ...brands];
 
   return (
-    <section className="relative py-10 md:py-16 bg-[#0a0a14] overflow-hidden">
-      {/* Glow de fondo */}
+    <section className="relative py-10 md:py-16 bg-white overflow-hidden">
+      {/* Glow de fondo - Cian suave */}
       <div className="absolute inset-0 flex items-center justify-center -z-10">
-        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container-custom relative z-10">
@@ -52,22 +52,20 @@ const ServicioMantenimientoBrands = () => {
           data-aos="fade-up"
           data-aos-duration="600"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/20 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-            <span className="text-[10px] md:text-xs font-medium text-blue-300 tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-cyan-300 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span className="text-[10px] md:text-xs font-medium text-cyan-600 tracking-wider uppercase">
               Marcas
             </span>
           </div>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3">
             Marcas y equipos que{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              atendemos
-            </span>
+            <span className="text-cyan-500">atendemos</span>
           </h2>
-          <p className="text-blue-200/60 text-sm md:text-base max-w-2xl mx-auto">
+          <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
             Trabajamos con todas las marcas y modelos del mercado
           </p>
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mt-4 rounded-full"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-cyan-500 mx-auto mt-4 rounded-full"></div>
         </div>
 
         {/* Carrusel infinito con fundido en los bordes */}
@@ -81,17 +79,17 @@ const ServicioMantenimientoBrands = () => {
             {duplicatedBrands.map((brand, index) => (
               <div
                 key={`${brand.name}-${index}`}
-                className="flex items-center justify-center min-w-[130px] md:min-w-[150px] h-24 md:h-28 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 px-6 py-4 hover:border-blue-400/50 hover:bg-white/10 hover:shadow-lg hover:shadow-blue-600/20 transition-all duration-300"
+                className="flex items-center justify-center min-w-[130px] md:min-w-[150px] h-24 md:h-28 rounded-2xl bg-white border border-gray-200 px-6 py-4 hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300"
               >
                 {brand.slug ? (
                   <img
                     src={`https://cdn.simpleicons.org/${brand.slug}/${brand.color}`}
                     alt={brand.name}
                     loading="lazy"
-                    className="max-w-full max-h-full w-auto h-auto object-contain opacity-70 hover:opacity-100 transition-all duration-300"
+                    className="max-w-full max-h-full w-auto h-auto object-contain opacity-60 hover:opacity-100 transition-all duration-300"
                   />
                 ) : (
-                  <span className="text-white/70 hover:text-white text-lg md:text-xl font-bold tracking-wide text-center transition-all duration-300">
+                  <span className="text-gray-400 hover:text-cyan-600 text-lg md:text-xl font-bold tracking-wide text-center transition-all duration-300">
                     {brand.name}
                   </span>
                 )}

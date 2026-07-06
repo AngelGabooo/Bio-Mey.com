@@ -15,8 +15,9 @@ const ServicioSoporte = () => {
       <ServicioSoporteWhy />
       <ServicioSoporteServices />
       <ServicioSoporteProcess />
+            <ServicioSoporteFAQ />
+
       <ServicioSoportePricing />
-      <ServicioSoporteFAQ />
       <Footer />
     </div>
   );

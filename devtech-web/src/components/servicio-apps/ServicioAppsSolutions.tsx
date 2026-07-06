@@ -125,54 +125,52 @@ const ServicioAppsSolutions = () => {
   ];
 
   return (
-    <section ref={sectionRef} className="relative py-16 md:py-24 bg-[#0a0a14] overflow-hidden">
-      {/* Glow de fondo */}
-      <div className="pointer-events-none absolute -bottom-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-r from-blue-600/8 to-purple-600/8 rounded-full blur-[130px] -z-10"></div>
+    <section ref={sectionRef} className="relative py-16 md:py-24 bg-white overflow-hidden">
+      {/* Glow de fondo - Cian suave */}
+      <div className="pointer-events-none absolute -bottom-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-[130px] -z-10"></div>
 
       <div className="container-custom relative z-10 max-w-6xl mx-auto px-5">
-        {/* Encabezado, compacto */}
+        {/* Encabezado */}
         <div
           className={`flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-10 md:mb-14 transition-all duration-700 ${
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
           <div>
-            <span className="text-blue-400 text-xs font-semibold tracking-[0.15em] uppercase">Soluciones</span>
-            <h2 className="text-2xl md:text-3xl lg:text-[2.25rem] font-extrabold text-white leading-tight mt-2">
+            <span className="text-cyan-500 text-xs font-semibold tracking-[0.15em] uppercase">Soluciones</span>
+            <h2 className="text-2xl md:text-3xl lg:text-[2.25rem] font-extrabold text-gray-900 leading-tight mt-2">
               Una app para{' '}
-              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                cada tipo de negocio
-              </span>
+              <span className="text-cyan-500">cada tipo de negocio</span>
             </h2>
           </div>
-          <p className="text-blue-200/45 text-sm md:text-[15px] max-w-sm">
+          <p className="text-gray-500 text-sm md:text-[15px] max-w-sm">
             No importa tu industria, adaptamos la aplicación a la forma en que ya trabajas.
           </p>
         </div>
 
-        {/* Grid de industrias, tarjetas de cristal con ícono transparente */}
+        {/* Grid de industrias */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
           {industries.map((industry, index) => (
             <div
               key={industry.id}
-              className={`group relative overflow-hidden p-5 rounded-2xl border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.05] hover:border-blue-400/30 transition-all duration-400 ${
+              className={`group relative overflow-hidden p-5 rounded-2xl border border-gray-200 bg-white hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-500/5 transition-all duration-400 ${
                 visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
               style={{ transitionDelay: visible ? `${index * 60}ms` : '0ms' }}
             >
               {/* Número decorativo de fondo */}
-              <span className="pointer-events-none absolute -top-2 -right-1 text-[2.75rem] font-black text-white/[0.03] leading-none select-none">
+              <span className="pointer-events-none absolute -top-2 -right-1 text-[2.75rem] font-black text-gray-100 leading-none select-none">
                 {String(industry.id).padStart(2, '0')}
               </span>
 
-              <div className="relative w-10 h-10 rounded-full border border-blue-400/25 flex items-center justify-center text-blue-300/80 group-hover:border-blue-400/60 group-hover:text-blue-300 group-hover:shadow-[0_0_14px_rgba(96,165,250,0.2)] transition-all duration-300 mb-3.5">
+              <div className="relative w-10 h-10 rounded-full border border-cyan-300 flex items-center justify-center text-cyan-500 group-hover:border-cyan-400 group-hover:text-cyan-600 group-hover:shadow-[0_0_14px_rgba(6,182,212,0.15)] transition-all duration-300 mb-3.5">
                 {industry.icon}
               </div>
 
-              <h3 className="relative text-white text-[13.5px] font-semibold leading-snug mb-1">
+              <h3 className="relative text-gray-900 text-[13.5px] font-semibold leading-snug mb-1">
                 {industry.name}
               </h3>
-              <p className="relative text-blue-200/40 text-[11.5px] leading-relaxed">
+              <p className="relative text-gray-500 text-[11.5px] leading-relaxed">
                 {industry.description}
               </p>
             </div>
@@ -180,13 +178,7 @@ const ServicioAppsSolutions = () => {
         </div>
 
         {/* CTA */}
-        <div
-          className={`text-center mt-12 transition-all duration-700 delay-300 ${
-            visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-        >
-         
-        </div>
+        
       </div>
     </section>
   );

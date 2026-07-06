@@ -83,57 +83,54 @@ const ServicioAppsBenefits = () => {
   ];
 
   return (
-    <section ref={sectionRef} className="relative py-14 md:py-20 bg-[#0a0a14] overflow-hidden">
-      {/* Glow de fondo */}
+    <section ref={sectionRef} className="relative py-14 md:py-20 bg-white overflow-hidden">
+      {/* Glow de fondo - Cian suave */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-r from-cyan-100/30 to-cyan-200/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container-custom relative z-10 max-w-6xl mx-auto px-5">
-        {/* Encabezado: título a la izquierda, texto de apoyo a la derecha */}
+        {/* Encabezado */}
         <div
           className={`flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10 md:mb-14 transition-all duration-700 ${
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
           <div>
-            <span className="text-blue-400 text-xs font-semibold tracking-wide">Beneficios</span>
-            <h2 className="text-2xl md:text-3xl lg:text-[2.25rem] font-extrabold text-white leading-tight mt-2 max-w-md">
+            <span className="text-cyan-500 text-xs font-semibold tracking-wide">Beneficios</span>
+            <h2 className="text-2xl md:text-3xl lg:text-[2.25rem] font-extrabold text-gray-900 leading-tight mt-2 max-w-md">
               ¿Por qué es{' '}
-              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                necesario
-              </span>{' '}
+              <span className="text-cyan-500">necesario</span>{' '}
               tener una{' '}
-              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                aplicación
-              </span>
+              <span className="text-cyan-500">aplicación</span>
               ?
             </h2>
           </div>
-          <p className="text-blue-200/50 text-sm md:text-[15px] leading-relaxed max-w-sm lg:text-right">
+          <p className="text-gray-500 text-sm md:text-[15px] leading-relaxed max-w-sm lg:text-right">
             Hoy en día, la mayoría de las personas utiliza su teléfono para buscar información, realizar compras, 
             reservar servicios o comunicarse con las empresas. Tener una aplicación móvil permite que tu negocio 
-            esté siempre al alcance de tus clientes, brindando una experiencia más rápida, profesional y personalizada.          </p>
+            esté siempre al alcance de tus clientes, brindando una experiencia más rápida, profesional y personalizada.
+          </p>
         </div>
 
-        {/* Grid de beneficios: fila compacta */}
+        {/* Grid de beneficios */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           {benefits.map((benefit, index) => (
             <div
               key={benefit.id}
-              className={`group bg-white/[0.03] rounded-xl p-4 md:p-5 border border-white/[0.06] hover:border-blue-400/30 hover:bg-white/[0.05] transition-all duration-300 ${
+              className={`group bg-white rounded-xl p-4 md:p-5 border border-gray-200 hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-500/5 transition-all duration-300 ${
                 visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
               style={{ transitionDelay: visible ? `${index * 80}ms` : '0ms', transitionDuration: '600ms' }}
             >
-              {/* Icono transparente con anillo */}
-              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3 text-blue-300/80 bg-transparent border border-blue-400/25 group-hover:border-blue-400/60 group-hover:text-blue-300 group-hover:shadow-[0_0_12px_rgba(96,165,250,0.25)] transition-all duration-300">
+              {/* Icono */}
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3 text-cyan-500 bg-transparent border border-cyan-300 group-hover:border-cyan-400 group-hover:text-cyan-600 group-hover:shadow-[0_0_12px_rgba(6,182,212,0.15)] transition-all duration-300">
                 {benefit.icon}
               </div>
-              <h3 className="text-white text-[13px] md:text-sm font-semibold leading-snug mb-1.5">
+              <h3 className="text-gray-900 text-[13px] md:text-sm font-semibold leading-snug mb-1.5">
                 {benefit.title}
               </h3>
-              <p className="text-blue-200/40 text-[11.5px] md:text-xs leading-relaxed">
+              <p className="text-gray-500 text-[11.5px] md:text-xs leading-relaxed">
                 {benefit.description}
               </p>
             </div>
