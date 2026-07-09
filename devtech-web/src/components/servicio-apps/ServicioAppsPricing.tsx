@@ -10,6 +10,12 @@ const EMAILJS_SERVICE_ID = 'service_nmcqlce';
 const EMAILJS_TEMPLATE_ID = 'template_kd0vifi';
 const EMAILJS_PUBLIC_KEY = '9o1-iq4oNrAxy0XDo';
 
+// ── CONFIGURACIÓN DE LÍMITE DE ENVÍOS ──
+const LIMITE_CONFIG = {
+  MAX_ENVIOS: 1, // 1 envío por usuario
+  PERIODO_HORAS: 24, // cada 24 horas
+};
+
 /**
  * Dropdown personalizado - Versión clara
  */
@@ -105,6 +111,73 @@ const APP_OPTIONS = [
   { value: 'web', label: 'Aplicación web' },
 ];
 
+// ── FUNCIONES DE LÍMITE DE ENVÍOS ──
+const getLimiteKey = () => 'biomey_apps_cotizacion_limite';
+
+const getLimiteData = () => {
+  try {
+    const stored = localStorage.getItem(getLimiteKey());
+    if (stored) {
+      const data = JSON.parse(stored);
+      if (data && typeof data.conteo === 'number' && data.fechaInicio) {
+        return data;
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+};
+
+const guardarLimiteData = (conteo) => {
+  const data = {
+    conteo: conteo,
+    fechaInicio: new Date().toISOString(),
+  };
+  localStorage.setItem(getLimiteKey(), JSON.stringify(data));
+};
+
+const resetearLimite = () => {
+  localStorage.removeItem(getLimiteKey());
+};
+
+const puedeEnviar = () => {
+  const limiteData = getLimiteData();
+
+  if (!limiteData) {
+    return { permitido: true };
+  }
+
+  const ahora = new Date();
+  const fechaInicio = new Date(limiteData.fechaInicio);
+  const horasPasadas = (ahora.getTime() - fechaInicio.getTime()) / (1000 * 60 * 60);
+
+  if (horasPasadas >= LIMITE_CONFIG.PERIODO_HORAS) {
+    resetearLimite();
+    return { permitido: true };
+  }
+
+  if (limiteData.conteo >= LIMITE_CONFIG.MAX_ENVIOS) {
+    const horasRestantes = Math.ceil(LIMITE_CONFIG.PERIODO_HORAS - horasPasadas);
+    return {
+      permitido: false,
+      mensaje: `Has alcanzado el límite de ${LIMITE_CONFIG.MAX_ENVIOS} cotización por día.`,
+      tiempoRestante: `Puedes enviar otra en ${horasRestantes} horas.`,
+    };
+  }
+
+  return { permitido: true };
+};
+
+// ── VALIDACIONES ──
+const soloLetras = (texto) => {
+  return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(texto);
+};
+
+const soloNumeros = (texto) => {
+  return /^[0-9+\s\-()]*$/.test(texto);
+};
+
 const ServicioAppsPricing = () => {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -117,6 +190,7 @@ const ServicioAppsPricing = () => {
     idea: '',
   });
   const [status, setStatus] = useState('idle');
+  const [errores, setErrores] = useState({ general: '' });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -133,16 +207,92 @@ const ServicioAppsPricing = () => {
   }, []);
 
   const handleChange = (field) => (e) => {
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    const valor = e.target.value;
+    
+    // Validación en tiempo real para nombre (solo letras)
+    if (field === 'nombre') {
+      if (valor === '' || soloLetras(valor)) {
+        setForm((prev) => ({ ...prev, [field]: valor }));
+        setErrores((prev) => ({ ...prev, nombre: '' }));
+      } else {
+        setErrores((prev) => ({ ...prev, nombre: 'Solo se permiten letras y espacios' }));
+      }
+      return;
+    }
+
+    // Validación en tiempo real para teléfono (solo números)
+    if (field === 'telefono') {
+      if (valor === '' || soloNumeros(valor)) {
+        setForm((prev) => ({ ...prev, [field]: valor }));
+        setErrores((prev) => ({ ...prev, telefono: '' }));
+      } else {
+        setErrores((prev) => ({ ...prev, telefono: 'Solo se permiten números' }));
+      }
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, [field]: valor }));
+  };
+
+  const validarFormulario = () => {
+    const nuevosErrores = {};
+
+    // Validar nombre (solo letras)
+    if (!form.nombre.trim()) {
+      nuevosErrores.nombre = 'El nombre es requerido';
+    } else if (!soloLetras(form.nombre)) {
+      nuevosErrores.nombre = 'Solo se permiten letras y espacios';
+    } else if (form.nombre.length < 2) {
+      nuevosErrores.nombre = 'El nombre debe tener al menos 2 caracteres';
+    }
+
+    // Validar correo
+    if (!form.correo) {
+      nuevosErrores.correo = 'El correo es requerido';
+    } else if (!/\S+@\S+\.\S+/.test(form.correo)) {
+      nuevosErrores.correo = 'Correo electrónico no válido';
+    }
+
+    // Validar teléfono (solo números)
+    if (form.telefono && !soloNumeros(form.telefono)) {
+      nuevosErrores.telefono = 'Solo se permiten números';
+    } else if (form.telefono && form.telefono.replace(/\D/g, '').length < 10) {
+      nuevosErrores.telefono = 'El teléfono debe tener al menos 10 dígitos';
+    }
+
+    // Validar idea
+    if (!form.idea.trim()) {
+      nuevosErrores.idea = 'Por favor, describe tu idea';
+    } else if (form.idea.length < 10) {
+      nuevosErrores.idea = 'La descripción debe tener al menos 10 caracteres';
+    }
+
+    setErrores(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.nombre || !form.correo) {
+
+    // 1. Verificar límite de envíos
+    const limite = puedeEnviar();
+    if (!limite.permitido) {
+      setStatus('error');
+      setErrores((prev) => ({
+        ...prev,
+        general: `${limite.mensaje} ${limite.tiempoRestante || ''}`,
+      }));
+      return;
+    }
+
+    // 2. Validar formulario
+    if (!validarFormulario()) {
       setStatus('error');
       return;
     }
+
     setStatus('sending');
+    setErrores({});
 
     const negocioLabel = NEGOCIO_OPTIONS.find((o) => o.value === form.tipoNegocio)?.label;
     const appLabel = APP_OPTIONS.find((o) => o.value === form.tipoApp)?.label;
@@ -158,14 +308,32 @@ const ServicioAppsPricing = () => {
           user_company: negocioLabel || 'No especificado',
           service: appLabel || 'No especificado',
           message: form.idea || 'Sin mensaje adicional',
+          sent_at: new Date().toLocaleString('es-MX', {
+            timeZone: 'America/Mexico_City',
+            dateStyle: 'short',
+            timeStyle: 'short',
+          }),
         },
         EMAILJS_PUBLIC_KEY
       );
+
+      // Guardar límite de envío
+      const limiteData = getLimiteData();
+      if (limiteData) {
+        guardarLimiteData(limiteData.conteo + 1);
+      } else {
+        guardarLimiteData(1);
+      }
+
       setStatus('success');
       setForm({ nombre: '', correo: '', telefono: '', tipoNegocio: '', tipoApp: '', idea: '' });
     } catch (err) {
       console.error('Error al enviar el formulario:', err);
       setStatus('error');
+      setErrores((prev) => ({
+        ...prev,
+        general: 'Hubo un error al enviar el mensaje. Por favor, inténtalo de nuevo.',
+      }));
     }
   };
 
@@ -395,7 +563,7 @@ const ServicioAppsPricing = () => {
             </div>
           </div>
 
-          {/* Columna derecha - Formulario */}
+          {/* Columna derecha - Formulario con validaciones */}
           <div
             className={`relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 md:p-8 transition-all duration-700 delay-200 ${
               visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
@@ -423,61 +591,83 @@ const ServicioAppsPricing = () => {
               </svg>
             </div>
 
+            {/* Mensaje de error general (límite de envíos) */}
+            {errores.general && (
+              <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
+                {errores.general}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="relative flex flex-col gap-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
-                  <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="flex-1">
-                    <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">Nombre completo</span>
-                    <input
-                      type="text"
-                      value={form.nombre}
-                      onChange={handleChange('nombre')}
-                      placeholder="Tu nombre"
-                      disabled={status === 'sending'}
-                      required
-                      className={inputBase}
-                    />
-                  </span>
-                </label>
-                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
-                  <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span className="flex-1">
-                    <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">Correo electrónico</span>
-                    <input
-                      type="email"
-                      value={form.correo}
-                      onChange={handleChange('correo')}
-                      placeholder="tu@correo.com"
-                      disabled={status === 'sending'}
-                      required
-                      className={inputBase}
-                    />
-                  </span>
-                </label>
+                <div>
+                  <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
+                    <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span className="flex-1">
+                      <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">Nombre completo *</span>
+                      <input
+                        type="text"
+                        value={form.nombre}
+                        onChange={handleChange('nombre')}
+                        placeholder="Tu nombre (solo letras)"
+                        disabled={status === 'sending'}
+                        required
+                        className={inputBase}
+                      />
+                    </span>
+                  </label>
+                  {errores.nombre && (
+                    <p className="text-red-500 text-xs mt-1 ml-2">{errores.nombre}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
+                    <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span className="flex-1">
+                      <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">Correo electrónico *</span>
+                      <input
+                        type="email"
+                        value={form.correo}
+                        onChange={handleChange('correo')}
+                        placeholder="tu@correo.com"
+                        disabled={status === 'sending'}
+                        required
+                        className={inputBase}
+                      />
+                    </span>
+                  </label>
+                  {errores.correo && (
+                    <p className="text-red-500 text-xs mt-1 ml-2">{errores.correo}</p>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
-                  <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  <span className="flex-1">
-                    <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">WhatsApp / Teléfono</span>
-                    <input
-                      type="tel"
-                      value={form.telefono}
-                      onChange={handleChange('telefono')}
-                      placeholder="+52 961 123 4567"
-                      disabled={status === 'sending'}
-                      className={inputBase}
-                    />
-                  </span>
-                </label>
+                <div>
+                  <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
+                    <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <span className="flex-1">
+                      <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">WhatsApp / Teléfono</span>
+                      <input
+                        type="tel"
+                        value={form.telefono}
+                        onChange={handleChange('telefono')}
+                        placeholder="961 123 4567 (solo números)"
+                        disabled={status === 'sending'}
+                        className={inputBase}
+                      />
+                    </span>
+                  </label>
+                  {errores.telefono && (
+                    <p className="text-red-500 text-xs mt-1 ml-2">{errores.telefono}</p>
+                  )}
+                </div>
                 <CustomSelect
                   label="Tipo de negocio"
                   placeholder="¿A qué se dedica tu negocio?"
@@ -507,22 +697,27 @@ const ServicioAppsPricing = () => {
                 options={APP_OPTIONS}
               />
 
-              <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
-                <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5" />
-                </svg>
-                <span className="flex-1">
-                  <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">Cuéntanos tu idea</span>
-                  <textarea
-                    value={form.idea}
-                    onChange={handleChange('idea')}
-                    placeholder="Describe tu proyecto, funciones principales, objetivos, público objetivo, etc."
-                    rows={3}
-                    disabled={status === 'sending'}
-                    className={`${inputBase} resize-none`}
-                  />
-                </span>
-              </label>
+              <div>
+                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-cyan-400 transition-colors duration-300">
+                  <svg className="w-4 h-4 mt-0.5 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5" />
+                  </svg>
+                  <span className="flex-1">
+                    <span className="block text-gray-700 text-[13px] font-semibold mb-0.5">Cuéntanos tu idea *</span>
+                    <textarea
+                      value={form.idea}
+                      onChange={handleChange('idea')}
+                      placeholder="Describe tu proyecto, funciones principales, objetivos, público objetivo, etc. (mínimo 10 caracteres)"
+                      rows={3}
+                      disabled={status === 'sending'}
+                      className={`${inputBase} resize-none`}
+                    />
+                  </span>
+                </label>
+                {errores.idea && (
+                  <p className="text-red-500 text-xs mt-1 ml-2">{errores.idea}</p>
+                )}
+              </div>
 
               <button
                 type="submit"
@@ -555,12 +750,12 @@ const ServicioAppsPricing = () => {
                   ¡Listo! Recibimos tu solicitud, te contactaremos pronto.
                 </div>
               )}
-              {status === 'error' && (
+              {status === 'error' && !errores.general && (
                 <div className="flex items-center gap-2 text-red-600 text-[12.5px] bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">
                   <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-8.999 3h.008v.008h-.008V15z" />
                   </svg>
-                  No pudimos enviar tu solicitud. Completa tu nombre y correo, o inténtalo de nuevo.
+                  No pudimos enviar tu solicitud. Completa los campos correctamente e inténtalo de nuevo.
                 </div>
               )}
 

@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ServicioSoporteHero from '../components/servicio-soporte/ServicioSoporteHero';
@@ -8,6 +10,15 @@ import ServicioSoporteFAQ from '../components/servicio-soporte/ServicioSoporteFA
 import ServicioSoportePricing from '../components/servicio-soporte/ServicioSoportePricing';
 
 const ServicioSoporte = () => {
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant' // también puedes quitar esta línea
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0a0a14]">
       <Navbar />
@@ -15,8 +26,7 @@ const ServicioSoporte = () => {
       <ServicioSoporteWhy />
       <ServicioSoporteServices />
       <ServicioSoporteProcess />
-            <ServicioSoporteFAQ />
-
+      <ServicioSoporteFAQ />
       <ServicioSoportePricing />
       <Footer />
     </div>

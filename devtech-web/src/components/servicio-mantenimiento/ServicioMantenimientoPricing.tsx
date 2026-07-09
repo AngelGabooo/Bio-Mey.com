@@ -156,6 +156,14 @@ const ServicioMantenimientoPricing = () => {
     servicio: '',
     mensaje: '',
   });
+
+  // Estados para validación de campos
+  const [nombreError, setNombreError] = useState('');
+  const [telefonoError, setTelefonoError] = useState('');
+  
+  // Control de envío por usuario
+  const [hasSentMessage, setHasSentMessage] = useState(false);
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     success: boolean;
@@ -176,10 +184,59 @@ const ServicioMantenimientoPricing = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Función para validar nombre (solo letras y espacios)
+  const validateNombre = (value: string): boolean => {
+    const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    return nombreRegex.test(value);
+  };
+
+  // Función para validar teléfono (solo números y guiones)
+  const validateTelefono = (value: string): boolean => {
+    const telefonoRegex = /^[0-9\-+]*$/;
+    return telefonoRegex.test(value);
+  };
+
+  // Función para limpiar el teléfono (eliminar guiones y espacios)
+  const cleanTelefono = (value: string): string => {
+    return value.replace(/[^0-9+]/g, '');
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
+    // Validación en tiempo real para nombre
+    if (name === 'nombre') {
+      if (value && !validateNombre(value)) {
+        setNombreError('El nombre solo puede contener letras y espacios');
+      } else {
+        setNombreError('');
+      }
+      // Eliminar caracteres no permitidos en tiempo real
+      const cleanValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+      setForm({
+        ...form,
+        [name]: cleanValue,
+      });
+      return;
+    }
+
+    // Validación en tiempo real para teléfono
+    if (name === 'telefono') {
+      if (value && !validateTelefono(value)) {
+        setTelefonoError('El teléfono solo puede contener números y guiones');
+      } else {
+        setTelefonoError('');
+      }
+      setForm({
+        ...form,
+        [name]: value,
+      });
+      return;
+    }
+
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -192,10 +249,34 @@ const ServicioMantenimientoPricing = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificar si el usuario ya envió un mensaje
+    if (hasSentMessage) {
+      setSubmitStatus({
+        success: false,
+        message: 'Ya has enviado un mensaje. Espera nuestra respuesta.',
+      });
+      return;
+    }
+
+    // Validaciones finales antes de enviar
+    if (!validateNombre(form.nombre)) {
+      setNombreError('El nombre solo puede contener letras y espacios');
+      return;
+    }
+
+    if (form.telefono && !validateTelefono(form.telefono)) {
+      setTelefonoError('El teléfono solo puede contener números y guiones');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus(null);
 
     try {
+      // Limpiar el teléfono antes de enviar
+      const telefonoLimpio = cleanTelefono(form.telefono);
+      
       emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
       const result = await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
@@ -203,14 +284,14 @@ const ServicioMantenimientoPricing = () => {
         {
           from_name: form.nombre,
           from_email: form.correo,
-          user_phone: form.telefono || 'No proporcionado',
+          user_phone: telefonoLimpio || 'No proporcionado',
           device_type: form.equipo || 'No especificado',
           service: form.servicio || 'No especificado',
           message: `
 📋 **Datos del cliente**
 Nombre: ${form.nombre}
 Correo: ${form.correo}
-Teléfono: ${form.telefono || 'No proporcionado'}
+Teléfono: ${telefonoLimpio || 'No proporcionado'}
 
 💻 **Tipo de equipo:** ${form.equipo || 'No especificado'}
 🔧 **Servicio de interés:** ${form.servicio || 'No especificado'}
@@ -226,6 +307,7 @@ ${form.mensaje}
           success: true,
           message: '¡Mensaje enviado con éxito! Te contactaremos pronto para agendar tu diagnóstico.',
         });
+        setHasSentMessage(true); // Marcar que el usuario ya envió un mensaje
         setForm({
           nombre: '',
           correo: '',
@@ -234,6 +316,8 @@ ${form.mensaje}
           servicio: '',
           mensaje: '',
         });
+        setNombreError('');
+        setTelefonoError('');
       }
     } catch (error) {
       console.error('Error al enviar:', error);
@@ -523,6 +607,12 @@ ${form.mensaje}
                 </div>
               )}
 
+              {hasSentMessage && (
+                <div className="mb-4 p-4 rounded-xl bg-blue-50 border border-blue-200 text-blue-700">
+                  Ya has enviado un mensaje. Nuestro equipo te contactará pronto.
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="flex items-center gap-1.5 text-gray-500 text-sm mb-1.5">
@@ -538,8 +628,13 @@ ${form.mensaje}
                     onChange={handleChange}
                     placeholder="Tu nombre"
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-cyan-400 focus:outline-none transition-colors duration-300"
+                    className={`w-full px-4 py-3 rounded-xl bg-gray-50 border ${
+                      nombreError ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-cyan-400'
+                    } text-gray-900 placeholder:text-gray-400 focus:outline-none transition-colors duration-300`}
                   />
+                  {nombreError && (
+                    <p className="mt-1 text-xs text-red-500">{nombreError}</p>
+                  )}
                 </div>
 
                 <div>
@@ -573,8 +668,13 @@ ${form.mensaje}
                     value={form.telefono}
                     onChange={handleChange}
                     placeholder="961 123 4567"
-                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-cyan-400 focus:outline-none transition-colors duration-300"
+                    className={`w-full px-4 py-3 rounded-xl bg-gray-50 border ${
+                      telefonoError ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-cyan-400'
+                    } text-gray-900 placeholder:text-gray-400 focus:outline-none transition-colors duration-300`}
                   />
+                  {telefonoError && (
+                    <p className="mt-1 text-xs text-red-500">{telefonoError}</p>
+                  )}
                 </div>
 
                 <CustomSelect
@@ -629,8 +729,8 @@ ${form.mensaje}
                 <div className="sm:col-span-2">
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="w-full px-8 py-4 text-white font-semibold rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-[1.02] transform flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isSubmitting || hasSentMessage}
+                    className={`w-full px-8 py-4 text-white font-semibold rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-[1.02] transform flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {isSubmitting ? (
                       <>
@@ -642,10 +742,12 @@ ${form.mensaje}
                       </>
                     ) : (
                       <>
-                        Solicitar diagnóstico
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
+                        {hasSentMessage ? 'Mensaje ya enviado' : 'Solicitar diagnóstico'}
+                        {!hasSentMessage && (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
+                        )}
                       </>
                     )}
                   </button>

@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const ServicioEnConstruccion = () => {
+  // Scroll automático al inicio al montar el componente
+  useEffect(() => {
+    // Forzar scroll al inicio de la página
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center relative overflow-hidden">
       {/* Resplandor ambiental de fondo - Cian suave */}
@@ -139,7 +149,7 @@ const ServicioEnConstruccion = () => {
             </div>
             <div className="flex flex-col items-end text-gray-400 text-xs">
               <span>81 4438 4806</span>
-              <span>a20624646@gmail.com</span>
+              <span>soporte-biomey-tux@outlook.com</span>
             </div>
           </div>
         </div>

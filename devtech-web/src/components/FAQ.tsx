@@ -16,7 +16,7 @@ const FAQ = () => {
   const faqs = [
     {
       question: '¿Cuánto tiempo tarda un proyecto?',
-      answer: 'El tiempo de desarrollo varía según la complejidad del proyecto. Un sitio web básico puede tomar 2-4 semanas, mientras que proyectos más complejos como aplicaciones móviles o sistemas personalizados pueden tomar 2-6 meses. Siempre proporcionamos un cronograma detallado al inicio del proyecto.'
+      answer: 'El tiempo de desarrollo varía según la complejidad del proyecto. Un sitio web básico puede tomar 1-4 semanas, mientras que proyectos más complejos como aplicaciones móviles o sistemas personalizados pueden tomar 2-6 meses. Siempre proporcionamos un cronograma detallado al inicio del proyecto.'
     },
     {
       question: '¿Trabajan con empresas pequeñas?',
@@ -32,7 +32,7 @@ const FAQ = () => {
     },
     {
       question: '¿Qué métodos de pago aceptan?',
-      answer: 'Aceptamos diversos métodos de pago: transferencia bancaria, tarjetas de crédito/débito, PayPal, y criptomonedas. También ofrecemos planes de pago flexibles para proyectos grandes, con la posibilidad de pagar por etapas.'
+      answer: 'Aceptamos diversos métodos de pago: transferencia bancaria, tarjetas de Débito, Efectivo y PayPal. También ofrecemos planes de pago flexibles para proyectos grandes, con la posibilidad de pagar por etapas.'
     }
   ];
 

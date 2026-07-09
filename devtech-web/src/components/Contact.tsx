@@ -350,7 +350,7 @@ ${formData.message}
         </svg>
       ),
       label: 'Correo',
-      value: 'a20624646@gmail.com'
+      value: 'soporte-biomey-tux@outlook.com'
     },
     {
       icon: (
