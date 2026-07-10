@@ -1,0 +1,10 @@
+# robots.txt para BioMey
+User-agent: *
+Allow: /
+
+# Deshabilitar rutas de administración
+Disallow: /admin/
+Disallow: /private/
+
+# Sitemap
+Sitemap: https://bio-mey-com-five.vercel.app/sitemap.xml

@@ -1,0 +1,13 @@
+# BioMey - Soluciones Digitales
+
+BioMey es una agencia digital especializada en desarrollo web, aplicaciones móviles y soporte técnico.
+
+## Servicios
+- [Desarrollo Web](https://bio-mey-com-five.vercel.app/servicios/desarrollo-web)
+- [Aplicaciones Móviles](https://bio-mey-com-five.vercel.app/servicios/aplicaciones-moviles)
+- [Mantenimiento de PC](https://bio-mey-com-five.vercel.app/servicios/mantenimiento-pc)
+- [Soporte Técnico](https://bio-mey-com-five.vercel.app/servicios/soporte-tecnico)
+
+## Contacto
+- Email: soporte-biomey-tux@outlook.com
+- Teléfono: +52 81 4438 4806
