@@ -2,16 +2,11 @@
 const express = require('express');
 const twilio = require('twilio');
 const cors = require('cors');
-require('dotenv').config();
 
 const app = express();
 
 // ===== CONFIGURACIÓN DE CORS Y HEADERS =====
 app.use(cors());
-app.use((req, res, next) => {
-  res.setHeader('ngrok-skip-browser-warning', 'true');
-  next();
-});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -24,7 +19,7 @@ const companyInfo = {
   website: 'https://bio-mey-com-five.vercel.app/'
 };
 
-// ===== SERVICIOS DETALLADOS =====
+// ===== SERVICIOS DETALLADOS (el mismo código que tienes) =====
 const services = {
   'web': {
     name: 'Desarrollo Web',
@@ -70,7 +65,7 @@ const services = {
   }
 };
 
-// ===== DETECTAR SERVICIO POR PALABRAS CLAVE =====
+// ===== FUNCIONES AUXILIARES =====
 function detectService(text) {
   const lowerText = text.toLowerCase();
   for (const [key, service] of Object.entries(services)) {
@@ -83,7 +78,7 @@ function detectService(text) {
   return null;
 }
 
-// ===== ENDPOINT PRINCIPAL - PRIMERA LLAMADA =====
+// ===== ENDPOINTS =====
 app.post('/voice', (req, res) => {
   console.log('📞 Llamada entrante a BioMey');
   
@@ -114,7 +109,6 @@ app.post('/voice', (req, res) => {
   res.send(twiml.toString());
 });
 
-// ===== ENDPOINT PARA PROCESAR RESPUESTAS =====
 app.post('/process-voice', (req, res) => {
   const speechResult = req.body.SpeechResult;
   console.log('🗣️ Cliente dijo:', speechResult);
@@ -137,7 +131,6 @@ app.post('/process-voice', (req, res) => {
   
   const lowerText = speechResult.toLowerCase();
   
-  // ===== VERIFICAR SI QUIERE INFORMACIÓN GENERAL =====
   if (lowerText.includes('información') || lowerText.includes('quienes') || 
       lowerText.includes('que hacen') || lowerText.includes('que es')) {
     const gather = twiml.gather({
@@ -158,7 +151,6 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
-  // ===== VERIFICAR SI QUIERE PRECIOS =====
   if (lowerText.includes('precio') || lowerText.includes('costo') || 
       lowerText.includes('cuánto') || lowerText.includes('cuesta')) {
     const gather = twiml.gather({
@@ -179,7 +171,6 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
-  // ===== VERIFICAR SI QUIERE CONTACTAR =====
   if (lowerText.includes('contactar') || lowerText.includes('hablar') || 
       lowerText.includes('persona') || lowerText.includes('agendar')) {
     twiml.say(
@@ -192,7 +183,6 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
-  // ===== DETECTAR SERVICIO ESPECÍFICO =====
   const detectedService = detectService(speechResult);
   
   if (detectedService && services[detectedService]) {
@@ -216,7 +206,6 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
-  // ===== RESPUESTA POR DEFECTO =====
   const gather = twiml.gather({
     input: 'speech',
     timeout: 5,
@@ -241,12 +230,10 @@ app.post('/process-voice', (req, res) => {
   res.send(twiml.toString());
 });
 
-// ===== ENDPOINT DE SALUD =====
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Asistente BioMey funcionando' });
 });
 
-// ===== ENDPOINT DE PRUEBA =====
 app.get('/test', (req, res) => {
   res.json({
     message: 'Servidor funcionando correctamente',
