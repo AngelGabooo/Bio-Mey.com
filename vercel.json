@@ -21,7 +21,6 @@
     { "src": "/google6acc02b786165fc8.html", "dest": "/google6acc02b786165fc8.html" },
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/img/(.*)", "dest": "/img/$1" },
-    { "src": "/(voice|process-voice|health|test)(.*)", "dest": "api/voice.js" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
