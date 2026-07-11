@@ -2,14 +2,12 @@
 const express = require('express');
 const twilio = require('twilio');
 const cors = require('cors');
-require('dotenv').config();
 
 const app = express();
 
 // ===== CONFIGURACIÓN DE CORS Y HEADERS =====
 app.use(cors());
 
-// ⭐ MIDDLEWARE PARA ELIMINAR LA PANTALLA DE ADVERTENCIA DE NGrok ⭐
 app.use((req, res, next) => {
   res.setHeader('ngrok-skip-browser-warning', 'true');
   next();
@@ -39,7 +37,7 @@ const services = {
   'app': {
     name: 'Aplicaciones Móviles',
     description: 'Desarrollamos apps para Android e iOS con diseño intuitivo y alto rendimiento.',
-    prices: 'Desde $30,000 MXN para apps básicas, depending de la complejidad y funcionalidades.',
+    prices: 'Desde $30,000 MXN para apps básicas, dependiendo de la complejidad y funcionalidades.',
     details: 'Incluye diseño UX/UI, desarrollo nativo, notificaciones push, integración con APIs y publicación en tiendas.',
     keywords: ['app', 'aplicación', 'movil', 'móvil', 'android', 'ios', 'celular']
   },
@@ -73,14 +71,12 @@ const services = {
   }
 };
 
-// Helper para armar la URL base dinámicamente y evitar que Vercel se confunda con rutas relativas
 function getBaseUrl(req) {
   const host = req.headers['x-forwarded-host'] || req.get('host');
   const protocol = req.headers['x-forwarded-proto'] || 'https';
   return `${protocol}://${host}`;
 }
 
-// ===== DETECTAR SERVICIO POR PALABRAS CLAVE =====
 function detectService(text) {
   const lowerText = text.toLowerCase();
   for (const [key, service] of Object.entries(services)) {
@@ -93,9 +89,8 @@ function detectService(text) {
   return null;
 }
 
-// ===== ENDPOINT PRINCIPAL - PRIMERA LLAMADA =====
+// ===== ENDPOINTS =====
 app.post('/voice', (req, res) => {
-  console.log('📞 Llamada entrante a BioMey');
   const twiml = new twilio.twiml.VoiceResponse();
   const baseUrl = getBaseUrl(req);
   
@@ -123,11 +118,8 @@ app.post('/voice', (req, res) => {
   res.type('text/xml').send(twiml.toString());
 });
 
-// ===== ENDPOINT PARA PROCESAR RESPUESTAS =====
 app.post('/process-voice', (req, res) => {
   const speechResult = req.body.SpeechResult;
-  console.log('🗣️ Cliente dijo:', speechResult);
-  
   const twiml = new twilio.twiml.VoiceResponse();
   const baseUrl = getBaseUrl(req);
   
@@ -147,7 +139,6 @@ app.post('/process-voice', (req, res) => {
   
   const lowerText = speechResult.toLowerCase();
   
-  // ===== VERIFICAR SI QUIERE INFORMACIÓN GENERAL =====
   if (lowerText.includes('información') || lowerText.includes('quienes') || 
       lowerText.includes('que hacen') || lowerText.includes('que es')) {
     const gather = twiml.gather({
@@ -168,7 +159,6 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
-  // ===== VERIFICAR SI QUIERE PRECIOS =====
   if (lowerText.includes('precio') || lowerText.includes('costo') || 
       lowerText.includes('cuánto') || lowerText.includes('cuesta')) {
     const gather = twiml.gather({
@@ -189,7 +179,6 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
-  // ===== VERIFICAR SI QUIERE CONTACTAR =====
   if (lowerText.includes('contactar') || lowerText.includes('hablar') || 
       lowerText.includes('persona') || lowerText.includes('agendar')) {
     twiml.say(
@@ -202,7 +191,6 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
-  // ===== DETECTAR SERVICIO ESPECÍFICO =====
   const detectedService = detectService(speechResult);
   
   if (detectedService && services[detectedService]) {
@@ -222,12 +210,10 @@ app.post('/process-voice', (req, res) => {
       `Detalles: ${service.details} ` +
       `¿Te gustaría más información sobre este servicio o prefieres que te contacte un asesor?`
     );
-    
     res.type('text/xml').send(twiml.toString());
     return;
   }
   
-  // ===== RESPUESTA POR DEFECTO =====
   const gather = twiml.gather({
     input: 'speech',
     timeout: 5,
@@ -251,13 +237,12 @@ app.post('/process-voice', (req, res) => {
   res.type('text/xml').send(twiml.toString());
 });
 
-// ===== ENRUTAMIENTO FLEXIBLE PARA ENTORNO SERVERLESS =====
-// Atrapa los paths sin importar si Vercel remueve la raíz al redirigir
-app.use('/health', (req, res) => {
+// Enrutamiento flexible tolerando cualquier entrada raíz mapeada por Vercel
+app.all('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Asistente BioMey funcionando' });
 });
 
-app.use('/test', (req, res) => {
+app.all('/test', (req, res) => {
   res.json({
     message: 'Servidor funcionando correctamente',
     time: new Date().toISOString(),
@@ -265,17 +250,9 @@ app.use('/test', (req, res) => {
   });
 });
 
-app.use('/', (req, res) => {
-  res.json({ status: 'ok', message: 'Backend Serverless de BioMey activo' });
+app.all('*', (req, res) => {
+  res.json({ status: 'ok', message: 'Backend de BioMey activo' });
 });
 
 // ===== EXPORTAR PARA VERCEL =====
 module.exports = app;
-
-// ===== SOLO PARA DESARROLLO LOCAL =====
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`🎙️ Asistente BioMey corriendo en puerto ${PORT}`);
-  });
-}
