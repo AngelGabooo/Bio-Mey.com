@@ -6,6 +6,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/debug.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "dist/**",
       "use": "@vercel/static"
     }
@@ -15,6 +19,7 @@
     { "source": "/process-voice", "destination": "/api/voice.js" },
     { "source": "/health", "destination": "/api/voice.js" },
     { "source": "/test", "destination": "/api/voice.js" },
+    { "source": "/debug", "destination": "/api/debug.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
