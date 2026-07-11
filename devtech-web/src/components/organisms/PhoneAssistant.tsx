@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 const PhoneAssistant = () => {
-  // ⭐ Número de teléfono de BioMey
-  const phoneNumber = '3349812319';
+  // ⭐ NÚMERO DE TWILIO ACTUALIZADO ⭐
+  const phoneNumber = '+16802013265';  // Formato internacional sin espacios
 
   // Estado para mostrar el modal/pantalla de llamada simulada
   const [isCallActive, setIsCallActive] = useState(false);
@@ -12,8 +12,8 @@ const PhoneAssistant = () => {
 
   // Función para iniciar la llamada
   const startCall = () => {
-    // Abrir el marcador del teléfono
-    window.location.href = `tel:+523349812319`;
+    // Abrir el marcador del teléfono con el número de Twilio
+    window.location.href = `tel:${phoneNumber}`;
     
     // Mostrar la interfaz de llamada en la página (simulada)
     setIsCallActive(true);
@@ -102,7 +102,7 @@ const PhoneAssistant = () => {
           </motion.button>
           
           <p className="text-sm text-gray-400 mt-3">
-            Haz clic para llamar al <span className="font-mono text-cyan-500">33 4981 2319</span>
+            Haz clic para llamar al <span className="font-mono text-cyan-500">+1 680 201 3265</span>
           </p>
         </div>
 
