@@ -7,12 +7,6 @@ const app = express();
 
 // ===== CONFIGURACIÓN DE CORS Y HEADERS =====
 app.use(cors());
-
-app.use((req, res, next) => {
-  res.setHeader('ngrok-skip-browser-warning', 'true');
-  next();
-});
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -89,7 +83,7 @@ function detectService(text) {
   return null;
 }
 
-// ===== ENDPOINTS =====
+// ===== ENDPOINTS PRINCIPALES =====
 app.post('/voice', (req, res) => {
   const twiml = new twilio.twiml.VoiceResponse();
   const baseUrl = getBaseUrl(req);
@@ -237,13 +231,13 @@ app.post('/process-voice', (req, res) => {
   res.type('text/xml').send(twiml.toString());
 });
 
-// Enrutamiento flexible tolerando cualquier entrada raíz mapeada por Vercel
+// ===== RUTAS DE CONTROL GENERAL =====
 app.all('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Asistente BioMey funcionando' });
+  res.status(200).json({ status: 'ok', message: 'Asistente BioMey funcionando' });
 });
 
 app.all('/test', (req, res) => {
-  res.json({
+  res.status(200).json({
     message: 'Servidor funcionando correctamente',
     time: new Date().toISOString(),
     status: 'ok'
@@ -251,7 +245,7 @@ app.all('/test', (req, res) => {
 });
 
 app.all('*', (req, res) => {
-  res.json({ status: 'ok', message: 'Backend de BioMey activo' });
+  res.status(200).json({ status: 'ok', message: 'Backend de BioMey activo' });
 });
 
 // ===== EXPORTAR PARA VERCEL =====
