@@ -8,20 +8,25 @@
     "build": "vite build",
     "build:tsc": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server/server.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@umami/node": "^0.4.0",
     "@vercel/analytics": "^2.0.1",
     "aos": "^2.3.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "framer-motion": "^12.42.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-ga4": "^3.0.1",
     "react-google-recaptcha": "^3.1.0",
     "react-google-recaptcha-v3": "^1.11.0",
-    "react-router-dom": "^7.18.1"
+    "react-router-dom": "^7.18.1",
+    "twilio": "^4.19.0"
   },
   "devDependencies": {
     "@types/aos": "^3.0.8",

@@ -5,7 +5,16 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+
+// ===== CONFIGURACIÓN DE CORS Y HEADERS =====
 app.use(cors());
+
+// ⭐ MIDDLEWARE PARA ELIMINAR LA PANTALLA DE ADVERTENCIA DE NGrok ⭐
+app.use((req, res, next) => {
+  res.setHeader('ngrok-skip-browser-warning', 'true');
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

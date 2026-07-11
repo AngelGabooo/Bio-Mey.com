@@ -1,29 +1,47 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "framework": "vite",
-  "rewrites": [
+  "builds": [
     {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
+      "src": "server/server.js",
+      "use": "@vercel/node"
     },
     {
-      "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
+      "src": "package.json",
+      "use": "@vercel/static-build"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/voice",
+      "dest": "server/server.js"
     },
     {
-      "source": "/llms.txt",
-      "destination": "/llms.txt"
+      "src": "/process-voice",
+      "dest": "server/server.js"
     },
     {
-      "source": "/google6acc02b786165fc8.html",
-      "destination": "/google6acc02b786165fc8.html"
+      "src": "/health",
+      "dest": "server/server.js"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/robots.txt",
+      "dest": "/robots.txt"
+    },
+    {
+      "src": "/sitemap.xml",
+      "dest": "/sitemap.xml"
+    },
+    {
+      "src": "/llms.txt",
+      "dest": "/llms.txt"
+    },
+    {
+      "src": "/google6acc02b786165fc8.html",
+      "dest": "/google6acc02b786165fc8.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
