@@ -11,49 +11,18 @@
     }
   ],
   "routes": [
-    {
-      "src": "/voice",
-      "dest": "/api/voice.js"
-    },
-    {
-      "src": "/process-voice",
-      "dest": "/api/voice.js"
-    },
-    {
-      "src": "/health",
-      "dest": "/api/voice.js"
-    },
-    {
-      "src": "/test",
-      "dest": "/api/voice.js"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "/robots.txt"
-    },
-    {
-      "src": "/sitemap.xml",
-      "dest": "/sitemap.xml"
-    },
-    {
-      "src": "/llms.txt",
-      "dest": "/llms.txt"
-    },
-    {
-      "src": "/google6acc02b786165fc8.html",
-      "dest": "/google6acc02b786165fc8.html"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/img/(.*)",
-      "dest": "/img/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "src": "/voice", "dest": "api/voice.js" },
+    { "src": "/process-voice", "dest": "api/voice.js" },
+    { "src": "/health", "dest": "api/voice.js" },
+    { "src": "/test", "dest": "api/voice.js" },
+    { "src": "/robots.txt", "dest": "/robots.txt" },
+    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
+    { "src": "/llms.txt", "dest": "/llms.txt" },
+    { "src": "/google6acc02b786165fc8.html", "dest": "/google6acc02b786165fc8.html" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/img/(.*)", "dest": "/img/$1" },
+    { "src": "/(voice|process-voice|health|test)(.*)", "dest": "api/voice.js" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
