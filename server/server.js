@@ -267,6 +267,5 @@ if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`🎙️ Asistente BioMey corriendo en puerto ${PORT}`);
-    console.log(`📞 URL para Twilio: http://localhost:${PORT}/voice`);
   });
 }

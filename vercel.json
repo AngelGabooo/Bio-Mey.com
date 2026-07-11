@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/voice.js",
+      "src": "server/server.js",
       "use": "@vercel/node"
     },
     {
@@ -13,19 +13,19 @@
   "routes": [
     {
       "src": "/voice",
-      "dest": "/api/voice.js"
+      "dest": "/server/server.js"
     },
     {
       "src": "/process-voice",
-      "dest": "/api/voice.js"
+      "dest": "/server/server.js"
     },
     {
       "src": "/health",
-      "dest": "/api/voice.js"
+      "dest": "/server/server.js"
     },
     {
       "src": "/test",
-      "dest": "/api/voice.js"
+      "dest": "/server/server.js"
     },
     {
       "src": "/robots.txt",
