@@ -250,6 +250,15 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Asistente BioMey funcionando' });
 });
 
+// ===== NUEVO ENDPOINT DE PRUEBA =====
+app.get('/test', (req, res) => {
+  res.json({
+    message: 'Servidor funcionando correctamente',
+    time: new Date().toISOString(),
+    status: 'ok'
+  });
+});
+
 // ===== EXPORTAR PARA VERCEL =====
 module.exports = app;
 
