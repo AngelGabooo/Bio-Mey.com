@@ -1,27 +1,16 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/voice.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "dist/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    { "src": "/voice", "dest": "/api/voice.js" },
-    { "src": "/process-voice", "dest": "/api/voice.js" },
-    { "src": "/health", "dest": "/api/voice.js" },
-    { "src": "/test", "dest": "/api/voice.js" },
-    { "src": "/robots.txt", "dest": "/robots.txt" },
-    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
-    { "src": "/llms.txt", "dest": "/llms.txt" },
-    { "src": "/google6acc02b786165fc8.html", "dest": "/google6acc02b786165fc8.html" },
-    { "src": "/assets/(.*)", "dest": "/assets/$1" },
-    { "src": "/img/(.*)", "dest": "/img/$1" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/voice", "destination": "/api/voice.js" },
+    { "source": "/process-voice", "destination": "/api/voice.js" },
+    { "source": "/health", "destination": "/api/voice.js" },
+    { "source": "/test", "destination": "/api/voice.js" },
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+    { "source": "/llms.txt", "destination": "/llms.txt" },
+    { "source": "/google6acc02b786165fc8.html", "destination": "/google6acc02b786165fc8.html" },
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/img/(.*)", "destination": "/img/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
