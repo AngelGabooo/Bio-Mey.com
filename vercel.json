@@ -4,23 +4,23 @@
     {
       "src": "server/server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build"
     }
   ],
   "routes": [
     {
-      "src": "/voice",
+      "src": "/voice(.*)",
       "dest": "server/server.js"
     },
     {
-      "src": "/process-voice",
+      "src": "/process-voice(.*)",
       "dest": "server/server.js"
     },
     {
-      "src": "/health",
+      "src": "/health(.*)",
+      "dest": "server/server.js"
+    },
+    {
+      "src": "/test(.*)",
       "dest": "server/server.js"
     },
     {
