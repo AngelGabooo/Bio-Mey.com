@@ -39,7 +39,7 @@ const services = {
   'app': {
     name: 'Aplicaciones Móviles',
     description: 'Desarrollamos apps para Android e iOS con diseño intuitivo y alto rendimiento.',
-    prices: 'Desde $30,000 MXN para apps básicas, dependiendo de la complejidad y funcionalidades.',
+    prices: 'Desde $30,000 MXN para apps básicas, depending de la complejidad y funcionalidades.',
     details: 'Incluye diseño UX/UI, desarrollo nativo, notificaciones push, integración con APIs y publicación en tiendas.',
     keywords: ['app', 'aplicación', 'movil', 'móvil', 'android', 'ios', 'celular']
   },
@@ -205,7 +205,7 @@ app.post('/process-voice', (req, res) => {
   // ===== DETECTAR SERVICIO ESPECÍFICO =====
   const detectedService = detectService(speechResult);
   
- if (detectedService && services[detectedService]) {
+  if (detectedService && services[detectedService]) {
     const service = services[detectedService];
     const gather = twiml.gather({
       input: 'speech',
@@ -223,7 +223,6 @@ app.post('/process-voice', (req, res) => {
       `¿Te gustaría más información sobre este servicio o prefieres que te contacte un asesor?`
     );
     
-    // ✅ CORREGIDO:
     res.type('text/xml').send(twiml.toString());
     return;
   }
@@ -252,18 +251,22 @@ app.post('/process-voice', (req, res) => {
   res.type('text/xml').send(twiml.toString());
 });
 
-// ===== ENDPOINT DE SALUD =====
-app.get('/health', (req, res) => {
+// ===== ENRUTAMIENTO FLEXIBLE PARA ENTORNO SERVERLESS =====
+// Atrapa los paths sin importar si Vercel remueve la raíz al redirigir
+app.use('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Asistente BioMey funcionando' });
 });
 
-// ===== NUEVO ENDPOINT DE PRUEBA =====
-app.get('/test', (req, res) => {
+app.use('/test', (req, res) => {
   res.json({
     message: 'Servidor funcionando correctamente',
     time: new Date().toISOString(),
     status: 'ok'
   });
+});
+
+app.use('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Backend Serverless de BioMey activo' });
 });
 
 // ===== EXPORTAR PARA VERCEL =====
