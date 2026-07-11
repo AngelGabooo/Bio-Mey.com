@@ -2,10 +2,11 @@
 const express = require('express');
 const twilio = require('twilio');
 const cors = require('cors');
+const serverless = require('serverless-http');
 
 const app = express();
 
-// ===== CONFIGURACIÓN DE CORS Y HEADERS =====
+// ===== CONFIGURACIÓN DE CORS Y MIDDLEWARES =====
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,7 +32,7 @@ const services = {
   'app': {
     name: 'Aplicaciones Móviles',
     description: 'Desarrollamos apps para Android e iOS con diseño intuitivo y alto rendimiento.',
-    prices: 'Desde $30,000 MXN para apps básicas, dependiendo de la complejidad y funcionalidades.',
+    prices: 'Desde $30,000 MXN para apps básicas, dependiendo de la complejidad y functionalities.',
     details: 'Incluye diseño UX/UI, desarrollo nativo, notificaciones push, integración con APIs y publicación en tiendas.',
     keywords: ['app', 'aplicación', 'movil', 'móvil', 'android', 'ios', 'celular']
   },
@@ -65,12 +66,14 @@ const services = {
   }
 };
 
+// Helper para armar la URL base dinámicamente
 function getBaseUrl(req) {
   const host = req.headers['x-forwarded-host'] || req.get('host');
   const protocol = req.headers['x-forwarded-proto'] || 'https';
   return `${protocol}://${host}`;
 }
 
+// ===== DETECTAR SERVICIO POR PALABRAS CLAVE =====
 function detectService(text) {
   const lowerText = text.toLowerCase();
   for (const [key, service] of Object.entries(services)) {
@@ -83,7 +86,7 @@ function detectService(text) {
   return null;
 }
 
-// ===== ENDPOINTS PRINCIPALES =====
+// ===== ENDPOINT PRINCIPAL - PRIMERA LLAMADA =====
 app.post('/voice', (req, res) => {
   const twiml = new twilio.twiml.VoiceResponse();
   const baseUrl = getBaseUrl(req);
@@ -112,6 +115,7 @@ app.post('/voice', (req, res) => {
   res.type('text/xml').send(twiml.toString());
 });
 
+// ===== ENDPOINT PARA PROCESAR RESPUESTAS =====
 app.post('/process-voice', (req, res) => {
   const speechResult = req.body.SpeechResult;
   const twiml = new twilio.twiml.VoiceResponse();
@@ -133,6 +137,7 @@ app.post('/process-voice', (req, res) => {
   
   const lowerText = speechResult.toLowerCase();
   
+  // Información General
   if (lowerText.includes('información') || lowerText.includes('quienes') || 
       lowerText.includes('que hacen') || lowerText.includes('que es')) {
     const gather = twiml.gather({
@@ -153,6 +158,7 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
+  // Precios
   if (lowerText.includes('precio') || lowerText.includes('costo') || 
       lowerText.includes('cuánto') || lowerText.includes('cuesta')) {
     const gather = twiml.gather({
@@ -173,6 +179,7 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
+  // Contactar Asesor
   if (lowerText.includes('contactar') || lowerText.includes('hablar') || 
       lowerText.includes('persona') || lowerText.includes('agendar')) {
     twiml.say(
@@ -185,6 +192,7 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
+  // Servicio específico detectado
   const detectedService = detectService(speechResult);
   
   if (detectedService && services[detectedService]) {
@@ -208,6 +216,7 @@ app.post('/process-voice', (req, res) => {
     return;
   }
   
+  // Fallback / Respuesta por defecto
   const gather = twiml.gather({
     input: 'speech',
     timeout: 5,
@@ -245,8 +254,8 @@ app.all('/test', (req, res) => {
 });
 
 app.all('*', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Backend de BioMey activo' });
+  res.status(200).json({ status: 'ok', message: 'Backend de BioMey activo en Vercel' });
 });
 
-// ===== EXPORTAR PARA VERCEL =====
-module.exports = app;
+// ===== EXPORTACIÓN SERVERLESS ADAPTADA =====
+module.exports = serverless(app);
