@@ -1,8 +1,17 @@
-export default async function handler(req, res) {
-  const response = await fetch(
-    `https://vercel.com/api/analytics/...?projectId=${process.env.VERCEL_PROJECT_ID}`,
-    { headers: { Authorization: `Bearer ${process.env.VERCEL_TOKEN}` } }
-  );
-  const data = await response.json();
-  res.status(200).json(data);
+// api/analytics.ts
+export default async function handler(_req: any, res: any) {
+  try {
+    const analyticsId = (globalThis as any).process?.env?.ANALYTICS_ID || 'G-8KVE4XQ0QQ';
+    
+    res.status(200).json({
+      status: 'ok',
+      message: 'Analytics endpoint activo',
+      analyticsId: analyticsId
+    });
+  } catch (error: any) {
+    res.status(500).json({ 
+      status: 'error', 
+      message: error.message || 'Error interno en el servidor' 
+    });
+  }
 }
