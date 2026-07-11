@@ -250,8 +250,14 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Asistente BioMey funcionando' });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🎙️ Asistente BioMey corriendo en puerto ${PORT}`);
-  console.log(`📞 URL para Twilio: http://localhost:${PORT}/voice`);
-});
+// ===== EXPORTAR PARA VERCEL =====
+module.exports = app;
+
+// ===== SOLO PARA DESARROLLO LOCAL =====
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`🎙️ Asistente BioMey corriendo en puerto ${PORT}`);
+    console.log(`📞 URL para Twilio: http://localhost:${PORT}/voice`);
+  });
+}
