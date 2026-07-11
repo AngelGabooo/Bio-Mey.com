@@ -1,17 +1,10 @@
 // api/voice.js
-const express = require('express');
 const twilio = require('twilio');
 const cors = require('cors');
-const serverless = require('serverless-http');
 
-const app = express();
+// Inicializar el middleware de CORS para funciones nativas
+const corsHandler = cors({ origin: true });
 
-// ===== CONFIGURACIÓN DE CORS Y MIDDLEWARES =====
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// ===== INFORMACIÓN DE BIOMEY =====
 const companyInfo = {
   name: 'BioMey',
   description: 'Somos una agencia de soluciones digitales especializada en desarrollo web, aplicaciones móviles y servicios tecnológicos.',
@@ -20,7 +13,6 @@ const companyInfo = {
   website: 'https://bio-mey-com-five.vercel.app/'
 };
 
-// ===== SERVICIOS DETALLADOS =====
 const services = {
   'web': {
     name: 'Desarrollo Web',
@@ -32,7 +24,7 @@ const services = {
   'app': {
     name: 'Aplicaciones Móviles',
     description: 'Desarrollamos apps para Android e iOS con diseño intuitivo y alto rendimiento.',
-    prices: 'Desde $30,000 MXN para apps básicas, dependiendo de la complejidad y functionalities.',
+    prices: 'Desde $30,000 MXN para apps básicas, dependiendo de la complejidad y funcionalidades.',
     details: 'Incluye diseño UX/UI, desarrollo nativo, notificaciones push, integración con APIs y publicación en tiendas.',
     keywords: ['app', 'aplicación', 'movil', 'móvil', 'android', 'ios', 'celular']
   },
@@ -66,196 +58,122 @@ const services = {
   }
 };
 
-// Helper para armar la URL base dinámicamente
 function getBaseUrl(req) {
-  const host = req.headers['x-forwarded-host'] || req.get('host');
+  const host = req.headers['x-forwarded-host'] || req.headers['host'];
   const protocol = req.headers['x-forwarded-proto'] || 'https';
   return `${protocol}://${host}`;
 }
 
-// ===== DETECTAR SERVICIO POR PALABRAS CLAVE =====
 function detectService(text) {
   const lowerText = text.toLowerCase();
   for (const [key, service] of Object.entries(services)) {
     for (const keyword of service.keywords) {
-      if (lowerText.includes(keyword)) {
-        return key;
-      }
+      if (lowerText.includes(keyword)) return key;
     }
   }
   return null;
 }
 
-// ===== ENDPOINT PRINCIPAL - PRIMERA LLAMADA =====
-app.post('/voice', (req, res) => {
-  const twiml = new twilio.twiml.VoiceResponse();
-  const baseUrl = getBaseUrl(req);
-  
-  const gather = twiml.gather({
-    input: 'speech',
-    timeout: 5,
-    speechTimeout: 'auto',
-    action: `${baseUrl}/process-voice`,
-    language: 'es-MX',
-    enhanced: true,
-  });
-  
-  gather.say(
-    `¡Hola! Bienvenido a ${companyInfo.name}. ${companyInfo.description} ` +
-    `¿En qué servicio te gustaría que te ayudemos hoy? ` +
-    `Puedes decir: Desarrollo Web, Aplicaciones Móviles, Mantenimiento de PC, ` +
-    `Soporte Técnico, Instalación de Software o Asesoría IT.`
-  );
-  
-  twiml.say(
-    `No te he escuchado. Puedes contactarnos por WhatsApp al ${companyInfo.phone} ` +
-    `o visitar nuestra página web. ¡Gracias por llamar!`
-  );
-  
-  res.type('text/xml').send(twiml.toString());
-});
+// Handler nativo de Vercel
+module.exports = async function (req, res) {
+  // Ejecutar CORS de forma manual
+  await new Promise((resolve) => corsHandler(req, res, resolve));
 
-// ===== ENDPOINT PARA PROCESAR RESPUESTAS =====
-app.post('/process-voice', (req, res) => {
-  const speechResult = req.body.SpeechResult;
-  const twiml = new twilio.twiml.VoiceResponse();
-  const baseUrl = getBaseUrl(req);
+  const url = req.url || '';
   
-  if (!speechResult) {
-    const gather = twiml.gather({
-      input: 'speech',
-      timeout: 5,
-      speechTimeout: 'auto',
-      action: `${baseUrl}/process-voice`,
-      language: 'es-MX',
-      enhanced: true,
-    });
-    gather.say('No te he escuchado bien. ¿Puedes repetir qué servicio te interesa?');
-    res.type('text/xml').send(twiml.toString());
-    return;
+  // ===== ENDPOINT: /health o /api/voice/health =====
+  if (url.includes('/health')) {
+    return res.status(200).json({ status: 'ok', message: 'Asistente BioMey funcionando nativamente' });
   }
-  
-  const lowerText = speechResult.toLowerCase();
-  
-  // Información General
-  if (lowerText.includes('información') || lowerText.includes('quienes') || 
-      lowerText.includes('que hacen') || lowerText.includes('que es')) {
-    const gather = twiml.gather({
-      input: 'speech',
-      timeout: 5,
-      speechTimeout: 'auto',
-      action: `${baseUrl}/process-voice`,
-      language: 'es-MX',
-      enhanced: true,
+
+  // ===== ENDPOINT: /test o /api/voice/test =====
+  if (url.includes('/test')) {
+    return res.status(200).json({
+      message: 'Servidor nativo funcionando correctamente',
+      time: new Date().toISOString(),
+      status: 'ok'
     });
+  }
+
+  // ===== ENDPOINT: /process-voice =====
+  if (url.includes('/process-voice') && req.method === 'POST') {
+    const speechResult = req.body?.SpeechResult || '';
+    const twiml = new twilio.twiml.VoiceResponse();
+    const baseUrl = getBaseUrl(req);
+
+    if (!speechResult) {
+      const gather = twiml.gather({
+        input: 'speech', timeout: 5, speechTimeout: 'auto',
+        action: `${baseUrl}/process-voice`, language: 'es-MX', enhanced: true,
+      });
+      gather.say('No te he escuchado bien. ¿Puedes repetir qué servicio te interesa?');
+      res.setHeader('Content-Type', 'text/xml');
+      return res.status(200).send(twiml.toString());
+    }
+
+    const lowerText = speechResult.toLowerCase();
+
+    if (lowerText.includes('información') || lowerText.includes('quienes') || lowerText.includes('que hacen') || lowerText.includes('que es')) {
+      const gather = twiml.gather({
+        input: 'speech', timeout: 5, speechTimeout: 'auto',
+        action: `${baseUrl}/process-voice`, language: 'es-MX', enhanced: true,
+      });
+      gather.say(`${companyInfo.name} es ${companyInfo.description} ¿Cuál de nuestros servicios te gustaría conocer más a fondo?`);
+      res.setHeader('Content-Type', 'text/xml');
+      return res.status(200).send(twiml.toString());
+    }
+
+    if (lowerText.includes('precio') || lowerText.includes('costo') || lowerText.includes('cuánto') || lowerText.includes('cuesta')) {
+      const gather = twiml.gather({
+        input: 'speech', timeout: 5, speechTimeout: 'auto',
+        action: `${baseUrl}/process-voice`, language: 'es-MX', enhanced: true,
+      });
+      gather.say(`Nuestros precios varían según el servicio. Por ejemplo, desarrollo web desde $2,500, mantenimiento de PC desde $250. ¿Qué servicio te interesa?`);
+      res.setHeader('Content-Type', 'text/xml');
+      return res.status(200).send(twiml.toString());
+    }
+
+    const detectedService = detectService(speechResult);
+    if (detectedService && services[detectedService]) {
+      const service = services[detectedService];
+      const gather = twiml.gather({
+        input: 'speech', timeout: 5, speechTimeout: 'auto',
+        action: `${baseUrl}/process-voice`, language: 'es-MX', enhanced: true,
+      });
+      gather.say(`Excelente elección. ${service.name}. Precios: ${service.prices} ¿Te gustaría más información o prefieres que te contacte un asesor?`);
+      res.setHeader('Content-Type', 'text/xml');
+      return res.status(200).send(twiml.toString());
+    }
+
+    const gather = twiml.gather({
+      input: 'speech', timeout: 5, speechTimeout: 'auto',
+      action: `${baseUrl}/process-voice`, language: 'es-MX', enhanced: true,
+    });
+    gather.say(`Entendido. Te recuerdo nuestros servicios: Desarrollo Web, Aplicaciones Móviles, Mantenimiento de PC, Soporte Técnico, Instalación de Software o Asesoría IT. ¿Cuál te gustaría conocer?`);
+    res.setHeader('Content-Type', 'text/xml');
+    return res.status(200).send(twiml.toString());
+  }
+
+  // ===== ENDPOINT PRINCIPAL: /voice (POST) =====
+  if (req.method === 'POST') {
+    const twiml = new twilio.twiml.VoiceResponse();
+    const baseUrl = getBaseUrl(req);
+
+    const gather = twiml.gather({
+      input: 'speech', timeout: 5, speechTimeout: 'auto',
+      action: `${baseUrl}/process-voice`, language: 'es-MX', enhanced: true,
+    });
+
     gather.say(
-      `${companyInfo.name} es ${companyInfo.description} ` +
-      `Ofrecemos servicios de Desarrollo Web, Aplicaciones Móviles, Mantenimiento de PC, ` +
-      `Soporte Técnico, Instalación de Software y Asesoría IT. ` +
-      `¿Cuál de estos servicios te gustaría conocer más a fondo?`
+      `¡Hola! Bienvenido a ${companyInfo.name}. ¿En qué servicio te gustaría que te ayudemos hoy? ` +
+      `Puedes decir: Desarrollo Web, Aplicaciones Móviles, Mantenimiento de PC, Soporte Técnico, Instalación de Software o Asesoría IT.`
     );
-    res.type('text/xml').send(twiml.toString());
-    return;
-  }
-  
-  // Precios
-  if (lowerText.includes('precio') || lowerText.includes('costo') || 
-      lowerText.includes('cuánto') || lowerText.includes('cuesta')) {
-    const gather = twiml.gather({
-      input: 'speech',
-      timeout: 5,
-      speechTimeout: 'auto',
-      action: `${baseUrl}/process-voice`,
-      language: 'es-MX',
-      enhanced: true,
-    });
-    gather.say(
-      `Nuestros precios varían según el servicio. Por ejemplo, ` +
-      `una landing page desde $2,500, una aplicación móvil desde $30,000, ` +
-      `mantenimiento de PC desde $250 e instalación de software desde $150. ` +
-      `¿Qué servicio te interesa para darte más detalles?`
-    );
-    res.type('text/xml').send(twiml.toString());
-    return;
-  }
-  
-  // Contactar Asesor
-  if (lowerText.includes('contactar') || lowerText.includes('hablar') || 
-      lowerText.includes('persona') || lowerText.includes('agendar')) {
-    twiml.say(
-      `Excelente. Puedes contactarnos por WhatsApp al ${companyInfo.phone} ` +
-      `o enviarnos un correo a ${companyInfo.email}. ` +
-      `También puedes visitar nuestra página web ${companyInfo.website}. ` +
-      `¿Hay algo más en lo que pueda ayudarte?`
-    );
-    res.type('text/xml').send(twiml.toString());
-    return;
-  }
-  
-  // Servicio específico detectado
-  const detectedService = detectService(speechResult);
-  
-  if (detectedService && services[detectedService]) {
-    const service = services[detectedService];
-    const gather = twiml.gather({
-      input: 'speech',
-      timeout: 5,
-      speechTimeout: 'auto',
-      action: `${baseUrl}/process-voice`,
-      language: 'es-MX',
-      enhanced: true,
-    });
-    gather.say(
-      `Excelente elección. ${service.name}. ` +
-      `${service.description} ` +
-      `Precios: ${service.prices} ` +
-      `Detalles: ${service.details} ` +
-      `¿Te gustaría más información sobre este servicio o prefieres que te contacte un asesor?`
-    );
-    res.type('text/xml').send(twiml.toString());
-    return;
-  }
-  
-  // Fallback / Respuesta por defecto
-  const gather = twiml.gather({
-    input: 'speech',
-    timeout: 5,
-    speechTimeout: 'auto',
-    action: `${baseUrl}/process-voice`,
-    language: 'es-MX',
-    enhanced: true,
-  });
-  gather.say(
-    `Entendido. Te recuerdo nuestros servicios: ` +
-    `Desarrollo Web, Aplicaciones Móviles, Mantenimiento de PC, ` +
-    `Soporte Técnico, Instalación de Software o Asesoría IT. ` +
-    `¿Cuál te gustaría conocer más a fondo?`
-  );
-  
-  twiml.say(
-    `Si prefieres, puedes contactarnos por WhatsApp al ${companyInfo.phone}. ` +
-    `¡Gracias por llamar a BioMey!`
-  );
-  
-  res.type('text/xml').send(twiml.toString());
-});
 
-// ===== RUTAS DE CONTROL GENERAL =====
-app.all('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Asistente BioMey funcionando' });
-});
+    twiml.say(`No te he escuchado. Puedes contactarnos por WhatsApp al ${companyInfo.phone}. ¡Gracias por llamar!`);
+    res.setHeader('Content-Type', 'text/xml');
+    return res.status(200).send(twiml.toString());
+  }
 
-app.all('/test', (req, res) => {
-  res.status(200).json({
-    message: 'Servidor funcionando correctamente',
-    time: new Date().toISOString(),
-    status: 'ok'
-  });
-});
-
-app.all('*', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Backend de BioMey activo en Vercel' });
-});
-
-// ===== EXPORTACIÓN SERVERLESS ADAPTADA =====
-module.exports = serverless(app);
+  // Fallback por defecto si entran por GET a la raíz del archivo
+  return res.status(200).json({ status: 'ok', message: 'Backend Nativo de BioMey activo en Vercel' });
+};
