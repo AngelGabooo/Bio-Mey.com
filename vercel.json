@@ -13,15 +13,15 @@
   "routes": [
     {
       "src": "/voice",
-      "dest": "server/server.js"
+      "dest": "/server/server.js"
     },
     {
       "src": "/process-voice",
-      "dest": "server/server.js"
+      "dest": "/server/server.js"
     },
     {
       "src": "/health",
-      "dest": "server/server.js"
+      "dest": "/server/server.js"
     },
     {
       "src": "/robots.txt",
