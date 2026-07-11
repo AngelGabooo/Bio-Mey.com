@@ -5,12 +5,19 @@ const cors = require('cors');
 
 const app = express();
 
-// ===== CONFIGURACIÓN DE CORS Y HEADERS =====
+// Habilitar CORS
 app.use(cors());
+
+// Middleware para NGROK (por si haces pruebas locales)
+app.use((req, res, next) => {
+  res.setHeader('ngrok-skip-browser-warning', 'true');
+  next();
+});
+
+// ⭐ CRÍTICO: Middlewares para leer lo que Twilio nos envía
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ===== INFORMACIÓN DE BIOMEY =====
 const companyInfo = {
   name: 'BioMey',
   description: 'Somos una agencia de soluciones digitales especializada en desarrollo web, aplicaciones móviles y servicios tecnológicos.',
@@ -19,7 +26,6 @@ const companyInfo = {
   website: 'https://bio-mey-com-five.vercel.app/'
 };
 
-// ===== SERVICIOS DETALLADOS (el mismo código que tienes) =====
 const services = {
   'web': {
     name: 'Desarrollo Web',
@@ -65,7 +71,6 @@ const services = {
   }
 };
 
-// ===== FUNCIONES AUXILIARES =====
 function detectService(text) {
   const lowerText = text.toLowerCase();
   for (const [key, service] of Object.entries(services)) {
@@ -78,49 +83,58 @@ function detectService(text) {
   return null;
 }
 
-// ===== ENDPOINTS =====
+// Helper para obtener la URL base dinámicamente y evitar problemas de ruteo absoluto en Twilio
+function getBaseUrl(req) {
+  const host = req.headers['x-forwarded-host'] || req.get('host');
+  const protocol = req.headers['x-forwarded-proto'] || 'https';
+  return `${protocol}://${host}`;
+}
+
+// ===== ENDPOINT DE ENTRADA (POST /voice) =====
 app.post('/voice', (req, res) => {
   console.log('📞 Llamada entrante a BioMey');
-  
   const twiml = new twilio.twiml.VoiceResponse();
-  
+  const baseUrl = getBaseUrl(req);
+
   const gather = twiml.gather({
     input: 'speech',
     timeout: 5,
     speechTimeout: 'auto',
-    action: '/process-voice',
+    action: `${baseUrl}/process-voice`, // URL absoluta dinámica
     language: 'es-MX',
     enhanced: true,
   });
-  
+
   gather.say(
     `¡Hola! Bienvenido a ${companyInfo.name}. ${companyInfo.description} ` +
     `¿En qué servicio te gustaría que te ayudemos hoy? ` +
     `Puedes decir: Desarrollo Web, Aplicaciones Móviles, Mantenimiento de PC, ` +
     `Soporte Técnico, Instalación de Software o Asesoría IT.`
   );
-  
+
   twiml.say(
     `No te he escuchado. Puedes contactarnos por WhatsApp al ${companyInfo.phone} ` +
     `o visitar nuestra página web. ¡Gracias por llamar!`
   );
-  
-  res.type('text/xml');
-  res.send(twiml.toString());
+
+  res.type('text/xml').send(twiml.toString());
 });
 
+// ===== ENDPOINT DE PROCESAMIENTO (POST /process-voice) =====
 app.post('/process-voice', (req, res) => {
+  // Con express.urlencoded esto ya no será undefined
   const speechResult = req.body.SpeechResult;
   console.log('🗣️ Cliente dijo:', speechResult);
-  
+
   const twiml = new twilio.twiml.VoiceResponse();
-  
+  const baseUrl = getBaseUrl(req);
+
   if (!speechResult) {
     const gather = twiml.gather({
       input: 'speech',
       timeout: 5,
       speechTimeout: 'auto',
-      action: '/process-voice',
+      action: `${baseUrl}/process-voice`,
       language: 'es-MX',
       enhanced: true,
     });
@@ -128,16 +142,17 @@ app.post('/process-voice', (req, res) => {
     res.type('text/xml').send(twiml.toString());
     return;
   }
-  
+
   const lowerText = speechResult.toLowerCase();
-  
+
+  // 1. Información General
   if (lowerText.includes('información') || lowerText.includes('quienes') || 
       lowerText.includes('que hacen') || lowerText.includes('que es')) {
     const gather = twiml.gather({
       input: 'speech',
       timeout: 5,
       speechTimeout: 'auto',
-      action: '/process-voice',
+      action: `${baseUrl}/process-voice`,
       language: 'es-MX',
       enhanced: true,
     });
@@ -150,14 +165,15 @@ app.post('/process-voice', (req, res) => {
     res.type('text/xml').send(twiml.toString());
     return;
   }
-  
+
+  // 2. Precios
   if (lowerText.includes('precio') || lowerText.includes('costo') || 
       lowerText.includes('cuánto') || lowerText.includes('cuesta')) {
     const gather = twiml.gather({
       input: 'speech',
       timeout: 5,
       speechTimeout: 'auto',
-      action: '/process-voice',
+      action: `${baseUrl}/process-voice`,
       language: 'es-MX',
       enhanced: true,
     });
@@ -170,7 +186,8 @@ app.post('/process-voice', (req, res) => {
     res.type('text/xml').send(twiml.toString());
     return;
   }
-  
+
+  // 3. Contacto
   if (lowerText.includes('contactar') || lowerText.includes('hablar') || 
       lowerText.includes('persona') || lowerText.includes('agendar')) {
     twiml.say(
@@ -182,16 +199,17 @@ app.post('/process-voice', (req, res) => {
     res.type('text/xml').send(twiml.toString());
     return;
   }
-  
+
+  // 4. Servicio específico
   const detectedService = detectService(speechResult);
-  
+
   if (detectedService && services[detectedService]) {
     const service = services[detectedService];
     const gather = twiml.gather({
       input: 'speech',
       timeout: 5,
       speechTimeout: 'auto',
-      action: '/process-voice',
+      action: `${baseUrl}/process-voice`,
       language: 'es-MX',
       enhanced: true,
     });
@@ -202,15 +220,16 @@ app.post('/process-voice', (req, res) => {
       `Detalles: ${service.details} ` +
       `¿Te gustaría más información sobre este servicio o prefieres que te contacte un asesor?`
     );
-    res.type('text/xml').send(twiml.toString());
+    res.type('text/xml').send(twiml.send(twiml.toString()));
     return;
   }
-  
+
+  // 5. Por defecto
   const gather = twiml.gather({
     input: 'speech',
     timeout: 5,
     speechTimeout: 'auto',
-    action: '/process-voice',
+    action: `${baseUrl}/process-voice`,
     language: 'es-MX',
     enhanced: true,
   });
@@ -220,16 +239,16 @@ app.post('/process-voice', (req, res) => {
     `Soporte Técnico, Instalación de Software o Asesoría IT. ` +
     `¿Cuál te gustaría conocer más a fondo?`
   );
-  
+
   twiml.say(
     `Si prefieres, puedes contactarnos por WhatsApp al ${companyInfo.phone}. ` +
     `¡Gracias por llamar a BioMey!`
   );
-  
-  res.type('text/xml');
-  res.send(twiml.toString());
+
+  res.type('text/xml').send(twiml.toString());
 });
 
+// ===== OTROS ENDPOINTS =====
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Asistente BioMey funcionando' });
 });
@@ -242,5 +261,5 @@ app.get('/test', (req, res) => {
   });
 });
 
-// ===== EXPORTAR PARA VERCEL =====
+// Exportar para Vercel
 module.exports = app;
