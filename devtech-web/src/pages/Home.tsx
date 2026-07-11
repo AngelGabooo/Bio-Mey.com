@@ -9,6 +9,7 @@ import Testimonials from '../components/Testimonials';
 import FAQ from '../components/FAQ';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
+import PhoneAssistant from '../components/organisms/PhoneAssistant'; // ← IMPORTAR EL ASISTENTE
 
 const Home = () => {
 
@@ -25,7 +26,6 @@ const Home = () => {
       <Navbar />
 
       <main>
-
         {/* Hero */}
         <Hero />
 
@@ -46,6 +46,9 @@ const Home = () => {
 
         {/* Contacto */}
         <Contact />
+
+        {/* ⭐ ASISTENTE TELEFÓNICO CON IA ⭐ */}
+        <PhoneAssistant />
 
       </main>
 

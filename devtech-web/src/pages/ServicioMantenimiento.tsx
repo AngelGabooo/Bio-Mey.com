@@ -22,6 +22,7 @@ const ServicioMantenimiento = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a14] text-white overflow-x-hidden">
+      {/* Navbar */}
       <Navbar />
 
       <main>
@@ -44,10 +45,11 @@ const ServicioMantenimiento = () => {
 
         {/* Marcas que atendemos */}
         <ServicioMantenimientoBrands />
-                <ServicioMantenimientoPricing />
+        {/* Formulario de contacto */}
+        <ServicioMantenimientoPricing />
 
       </main>
-
+      {/* Footer */}
       <Footer />
     </div>
   );
